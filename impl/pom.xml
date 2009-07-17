@@ -9,7 +9,7 @@
     <parent>
       <artifactId>jboss-test-audit</artifactId>
       <groupId>org.jboss</groupId>
-      <version>0.9.2</version>
+      <version>0.9.3-SNAPSHOT</version>
     </parent>
 
     <dependencies>
