@@ -25,19 +25,49 @@
     </dependencies>
     
     <build>
+        <defaultGoal>test</defaultGoal>
         <plugins>
             <plugin>
-               <groupId>org.apache.maven.plugins</groupId>
-               <artifactId>maven-compiler-plugin</artifactId>
-               <configuration>
-                  <source>1.6</source>
-                  <target>1.6</target>
-                  <compilerArgument>-proc:none</compilerArgument>
-               </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>2.0.2</version>
+                <configuration>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <compilerArgument>-proc:none</compilerArgument>
+                </configuration>
             </plugin>
             <plugin>
-            	<groupId>org.apache.maven.plugins</groupId>
-            	<artifactId>maven-enforcer-plugin</artifactId>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>process_annotations</id>
+                        <phase>process-test-resources</phase>
+                        <configuration>
+                            <tasks>
+                                <javac srcdir="src/test/java" destdir="/target/classes"
+                                    failonerror="false" excludes="test/**">
+                                    <compilerarg value="-proc:only"/>
+                                    <classpath>
+                                        <path refid="maven.test.classpath"/>
+                                    </classpath>
+                                </javac>
+                            </tasks>
+                            <sourceRoot>generate</sourceRoot>
+                        </configuration>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.ant</groupId>
+                        <artifactId>ant</artifactId>
+                        <version>1.7.0</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
