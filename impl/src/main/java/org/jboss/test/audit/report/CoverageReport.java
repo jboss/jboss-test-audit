@@ -315,8 +315,8 @@ public class CoverageReport {
        sb.append("<th>Assertions</th>");
        sb.append("<th>Testable</th>");
        sb.append("<th>Total Tested</th>");
-       sb.append("<th>Tested<br /> (unimplemented)</th>");
-       sb.append("<th>Tested<br /> (implemented)</th>");
+       sb.append("<th>Tested<br /> (problematic)</th>");
+       sb.append("<th>Tested<br /> (working)</th>");
        sb.append("<th>Coverage %</th>");
        sb.append("</tr>");
        
@@ -511,8 +511,8 @@ public class CoverageReport {
        sb.append("<th>Assertions</th>");
        sb.append("<th>Testable</th>");
        sb.append("<th>Total Tested</th>");
-       sb.append("<th>Tested<br /> (unimplemented)</th>");
-       sb.append("<th>Tested<br /> (implemented)</th>");
+       sb.append("<th>Tested<br /> (problematic)</th>");
+       sb.append("<th>Tested<br /> (working)</th>");
        sb.append("<th>Coverage %</th>");
        sb.append("</tr>");
        
