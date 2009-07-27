@@ -25,6 +25,7 @@ import javax.lang.model.element.TypeElement;
 
 import org.jboss.test.audit.annotations.SpecAssertion;
 import org.jboss.test.audit.annotations.SpecAssertions;
+import org.jboss.test.audit.annotations.SpecVersion;
 
 /**
  * Annotation processor for generating TCK coverage report
@@ -190,6 +191,12 @@ public class CoverageProcessor extends AbstractProcessor {
         ref.setPackageName(packageElement.getQualifiedName().toString());
         ref.setClassName(methodElement.getEnclosingElement().getSimpleName().toString());
         ref.setMethodName(methodElement.getSimpleName().toString());
+        
+        if (methodElement.getEnclosingElement().getAnnotation(SpecVersion.class) != null)
+        {
+           ref.setSpecVersion(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).value());
+        }
+        
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationParameters.entrySet()) {
             final String elementKey = entry.getKey().toString();
             
@@ -198,7 +205,7 @@ public class CoverageProcessor extends AbstractProcessor {
             } else if (elementKey.equals("id()")) {
                 ref.setAssertion((String) entry.getValue().getValue());
             }
-        }
+        }                        
         for (AnnotationMirror annotationMirror : processingEnv.getElementUtils().getAllAnnotationMirrors(methodElement))
         {
            if (annotationMirror.getAnnotationType().toString().equals("org.testng.annotations.Test"))
