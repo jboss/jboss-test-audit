@@ -895,7 +895,7 @@ public class CoverageReport {
     {
        for (String group : groups)
        {
-          if (unimplementedTestGroups.contains(group)) return false;
+          if (unimplementedTestGroups != null && unimplementedTestGroups.contains(group)) return false;
        }
        
        return true;

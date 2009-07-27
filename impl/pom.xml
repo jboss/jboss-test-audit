@@ -46,7 +46,7 @@
                         <phase>process-test-resources</phase>
                         <configuration>
                             <tasks>
-                                <javac srcdir="src/test/java" destdir="/target/classes"
+                                <javac srcdir="src/test/java" destdir="target/classes"
                                     failonerror="false" excludes="test/**">
                                     <compilerarg value="-proc:only"/>
                                     <classpath>
