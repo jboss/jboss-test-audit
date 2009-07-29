@@ -6,41 +6,31 @@ package org.jboss.test.audit.report;
  * @author Shane Bryzak
  *
  */
-public class AuditAssertion implements Comparable<AuditAssertion>
+public class AuditAssertion extends SectionItem 
 {
-   private String section;
    private String id;
-   private String text;
    private String note;
    private boolean testable;
    private boolean implied;
+   private AssertionGroup group;
    
    public AuditAssertion(String section, String id, String text, String note, 
-         boolean testable, boolean implied)
+         boolean testable, boolean implied, AssertionGroup group)
    {
-      this.section = section;
+      setSection(section);
+      setText(text);
       this.id = id;
-      this.text = text;
       this.note = note;
       this.testable = testable;
       this.implied = implied;
-   }
-   
-   public String getSection()
-   {
-      return section;
+      this.group = group;
    }
    
    public String getId()
    {
       return id;
    }
-   
-   public String getText()
-   {
-      return text;
-   }
-   
+
    public String getNote()
    {
       return note;
@@ -55,11 +45,31 @@ public class AuditAssertion implements Comparable<AuditAssertion>
    {
       return implied;
    }
+   
+   public AssertionGroup getGroup()
+   {
+      return group;
+   }
 
-   public int compareTo(AuditAssertion other)
-   {            
-      int i = section.compareTo(other.section);      
-      return i != 0 ? i : id.compareTo(other.id);
+   @Override
+   public int compareTo(SectionItem other)
+   {
+      int i = getSection().compareTo(other.getSection());
+      if (i != 0)
+      {
+         return i;
+      }
+      else
+      {
+         if (other instanceof AuditAssertion)
+         {
+            return id.compareTo(((AuditAssertion) other).id);
+         }
+         else
+         {
+            return 0;
+         }
+      }
    }
    
 }

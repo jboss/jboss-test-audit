@@ -46,6 +46,7 @@ public class CoverageReport
    private static final String COLOUR_SHADE_RED = "#ffdddd";
    private static final String COLOUR_SHADE_BLUE = "#80d1ff";
    private static final String COLOUR_SHADE_ORANGE = "#ffcc33";
+   private static final String COLOUR_SHADE_LIGHT_GREY = "#eeeeee";
 
    /*
     * References to the spec assertions made by the test tests
@@ -308,6 +309,20 @@ public class CoverageReport
       sb.append("    color: #fff;\n");
       sb.append("    font-weight: bold;\n");
       sb.append("    background-color: #000; }\n");
+      sb.append("  .group {\n");
+      sb.append("    border-top: 1px solid #000000;\n");
+      sb.append("    border-bottom: 1px solid #000000;\n");
+      sb.append("    padding-bottom: 1px;\n");
+      sb.append("    margin-bottom: 2px;\n");      
+      sb.append("    min-height: 36px;\n");
+      sb.append("    background-color: " + COLOUR_SHADE_LIGHT_GREY + "; }\n");      
+      sb.append("  .groupAssertions {\n");
+      sb.append("    padding-bottom: 1px;\n");
+      sb.append("    margin-top: 8px;\n");
+      sb.append("    margin-left: 50px;\n");
+      sb.append("    margin-bottom: 2px;\n");      
+      sb.append("    min-height: 36px; \n");
+      sb.append("    background-color: ffffff; }\n");                  
       sb.append("  .pass {\n");
       sb.append("    border-top: 1px solid #488c41;\n");
       sb.append("    border-bottom: 1px solid #488c41;\n");
@@ -359,13 +374,13 @@ public class CoverageReport
    {
       StringBuilder sb = new StringBuilder();
 
-      sb.append("<h3>Contents</h3>");
-      sb.append("<div><a href=\"#chapterSummary\">Chapter Summary</a></div>");
-      sb.append("<div><a href=\"#sectionSummary\">Section Summary</a></div>");
-      sb.append("<div><a href=\"#coverageDetail\">Coverage Detail</a></div>");
-      sb.append("<div><a href=\"#unmatched\">Unmatched Tests</a></div>");
-      sb.append("<div><a href=\"#unversioned\">Unversioned Tests</a></div>");
-      sb.append("<div><a href=\"#groupsummary\">Test Group Summary</a></div>");
+      sb.append("<h3>Contents</h3>\n");
+      sb.append("<div><a href=\"#chapterSummary\">Chapter Summary</a></div>\n");
+      sb.append("<div><a href=\"#sectionSummary\">Section Summary</a></div>\n");
+      sb.append("<div><a href=\"#coverageDetail\">Coverage Detail</a></div>\n");
+      sb.append("<div><a href=\"#unmatched\">Unmatched Tests</a></div>\n");
+      sb.append("<div><a href=\"#unversioned\">Unversioned Tests</a></div>\n");
+      sb.append("<div><a href=\"#groupsummary\">Test Group Summary</a></div>\n");
 
       out.write(sb.toString().getBytes());
    }
@@ -376,17 +391,17 @@ public class CoverageReport
 
       sb.append("<h3 id=\"chapterSummary\">Chapter Summary</h3>\n");
 
-      sb.append("<table width=\"100%\">");
+      sb.append("<table width=\"100%\">\n");
 
-      sb.append("<tr style=\"background-color:#dddddd\">");
-      sb.append("<th align=\"left\">Chapter</th>");
-      sb.append("<th>Assertions</th>");
-      sb.append("<th>Testable</th>");
-      sb.append("<th>Total Tested</th>");
-      sb.append("<th>Tested<br /> (problematic)</th>");
-      sb.append("<th>Tested<br /> (working)</th>");
-      sb.append("<th>Coverage %</th>");
-      sb.append("</tr>");
+      sb.append("<tr style=\"background-color:#dddddd\">\n");
+      sb.append("  <th align=\"left\">Chapter</th>\n");
+      sb.append("  <th>Assertions</th>\n");
+      sb.append("  <th>Testable</th>\n");
+      sb.append("  <th>Total Tested</th>\n");
+      sb.append("  <th>Tested<br /> (problematic)</th>\n");
+      sb.append("  <th>Tested<br /> (working)</th>\n");
+      sb.append("  <th>Coverage %</th>\n");
+      sb.append("</tr>\n");
 
       boolean odd = true;
 
@@ -404,8 +419,7 @@ public class CoverageReport
          {
             String prefix = sectionId + ".";
 
-            int assertions = auditParser.getAssertionsForSection(sectionId)
-                  .size();
+            int assertions = auditParser.getAssertionsForSection(sectionId).size();
             int testable = 0;
             int implemented = 0;
             int unimplemented = 0;
@@ -693,27 +707,29 @@ public class CoverageReport
       out.write("<h3 id=\"coverageDetail\">Coverage Detail</h3>\n".getBytes());
 
       StringBuilder key = new StringBuilder();
-      key.append("<table>");
+      key.append("<table>\n");
       key
-            .append("<tr><th style=\"background-color:#dddddd\">Colour Key</th></tr>");
-      key.append("<tr><td style=\"background-color:" + COLOUR_SHADE_GREEN
-            + ";text-align:center\">Assertion is covered</td></tr>");
-      key.append("<tr><td style=\"background-color:" + COLOUR_SHADE_RED
-            + ";text-align:center\">Assertion is not covered</td></tr>");
-      key.append("<tr><td style=\"background-color:" + COLOUR_SHADE_ORANGE
-            + ";text-align:center\">Assertion test is unimplemented</td></tr>");
-      key.append("<tr><td style=\"background-color:" + COLOUR_SHADE_BLUE
-            + ";text-align:center\">Assertion is untestable</td></tr>");
-      key.append("</table>");
+            .append("  <tr><th style=\"background-color:#dddddd\">Colour Key</th></tr>\n");
+      key.append("  <tr><td style=\"background-color:" + COLOUR_SHADE_GREEN
+            + ";text-align:center\">Assertion is covered</td></tr>\n");
+      key.append("  <tr><td style=\"background-color:" + COLOUR_SHADE_RED
+            + ";text-align:center\">Assertion is not covered</td></tr>\n");
+      key.append("  <tr><td style=\"background-color:" + COLOUR_SHADE_ORANGE
+            + ";text-align:center\">Assertion test is unimplemented</td></tr>\n");
+      key.append("  <tr><td style=\"background-color:" + COLOUR_SHADE_BLUE
+            + ";text-align:center\">Assertion is untestable</td></tr>\n");
+      key.append("</table>\n");
       out.write(key.toString().getBytes());
 
       for (String sectionId : auditParser.getSectionIds())
       {
+         List<SectionItem> items = auditParser.getItemsForSection(sectionId);
+         
+         
+         //List<AuditAssertion> sectionAssertions = auditParser
+               ///getAssertionsForSection(sectionId);
 
-         List<AuditAssertion> sectionAssertions = auditParser
-               .getAssertionsForSection(sectionId);
-
-         if (sectionAssertions != null && !sectionAssertions.isEmpty())
+         if (items != null && !items.isEmpty())
          {
             StringBuilder sb = new StringBuilder();
 
@@ -722,143 +738,16 @@ public class CoverageReport
                   + escape(auditParser.getSectionTitle(sectionId)) + "</h4>\n")
                   .getBytes());
 
-            for (AuditAssertion assertion : sectionAssertions)
+            for (SectionItem item : items)
             {
-               List<SpecReference> coverage = getCoverageForAssertion(
-                     sectionId, assertion.getId());
-               TestStatus status = getStatus(coverage);
-
-               String divClass = null;
-
-               if (assertion.isTestable())
+               if (item instanceof AssertionGroup)
                {
-                  if (status.equals(TestStatus.UNCOVERED))
-                  {
-                     divClass = "fail";
-                  } else if (status.equals(TestStatus.UNIMPLEMENTED))
-                  {
-                     divClass = "skip";
-                  } else
-                  {
-                     divClass = "pass";
-                  }
-               } else
-               {
-                  divClass = "untestable";
+                  appendAssertionGroup(sb, (AssertionGroup) item);
                }
-
-               sb.append("  <div class=\"" + divClass + "\">\n");
-
-               if (assertion.isImplied())
+               else if (item instanceof AuditAssertion)
                {
-                  sb
-                        .append("<span class=\"implied\">The following assertion is not made explicitly by the spec, however it is implied</span>");
+                  appendAssertion(sb, (AuditAssertion) item);
                }
-
-               sb.append("    <span class=\"code\">");
-               sb.append(assertion.getId());
-               sb.append(")");
-
-               if (!Strings.isEmpty(assertion.getNote()))
-               {
-                  sb.append("<img title=\"" + assertion.getNote()
-                        + "\" src=\"images/blank.png\" class=\"stickynote\"/>");
-                  // sb.append("<a title=\"" + assertion.getNote() +
-                  // "\"><img title=\"" + assertion.getNote() +
-                  // "\" src=\"images/blank.png\" class=\"stickynote\"/></a>");
-               }
-
-               sb.append("</span>\n");
-
-               sb.append("    <div class=\"results\">");
-
-               sb.append("<p class=\"description\">");
-               String imageFilename = sectionId + "." + assertion.getId()
-                     + ".png";
-               File imageFile = new File(imageSrcDir, imageFilename);
-
-               if (imageFile.exists())
-               {
-                  sb.append("<img src=\"images/" + imageFile.getName()
-                        + "\" class=\"embeddedImage\"/>");
-                  copyFile(imageFile, new File(imageTargetDir, imageFilename));
-               }
-
-               String assertionText = parseStrikethrough(parseBold(parseLiteral(escape(assertion
-                     .getText()))));
-               sb.append(assertionText);
-               sb.append("</p>\n");
-
-               if (assertion.isTestable())
-               {
-                  sb.append("    <div class=\"coverage\">\n");
-                  sb.append("      <p class=\"coverageHeader\">Coverage</p>\n");
-
-                  String currentPackageName = null;
-
-                  if (status.equals(TestStatus.UNCOVERED))
-                  {
-                     sb
-                           .append("        <p class=\"noCoverage\">No tests exist for this assertion</p>\n");
-                  } else
-                  {
-                     for (SpecReference ref : coverage)
-                     {
-                        if (!ref.getPackageName().equals(currentPackageName))
-                        {
-                           currentPackageName = ref.getPackageName();
-                           sb.append("        <div class=\"packageName\">");
-                           sb.append(currentPackageName);
-                           sb.append("        </div>\n");
-                        }
-
-                        sb.append("        <div class=\"coverageMethod\">");
-                        sb.append(ref.getClassName());
-                        sb.append(".");
-                        sb.append(ref.getMethodName());
-                        sb.append("()");
-
-                        if (fisheyeBaseUrl != null)
-                        {
-                           sb
-                                 .append("<a class=\"external\" target=\"_blank\" href=\"");
-                           sb.append(fisheyeBaseUrl);
-                           sb.append(currentPackageName.replace('.', '/'));
-                           sb.append("/");
-                           sb.append(ref.getClassName());
-                           sb.append(".java");
-                           sb.append("\">fisheye</a>");
-                        }
-
-                        if (svnBaseUrl != null)
-                        {
-                           if (fisheyeBaseUrl != null)
-                           {
-                              sb.append("|");
-                           }
-
-                           sb
-                                 .append("<a class=\"external\" target=\"_blank\" href=\"");
-                           sb.append(svnBaseUrl);
-                           sb.append(currentPackageName.replace('.', '/'));
-                           sb.append("/");
-                           sb.append(ref.getClassName());
-                           sb.append(".java");
-                           sb.append("\">svn</a>");
-                        }
-
-                        sb.append("</div>\n");
-                     }
-                  }
-
-                  sb.append("    </div>\n");
-               } else if (!coverage.isEmpty())
-               {
-                  sb
-                        .append("<b>A test exists for this untestable assertion!</b>");
-               }
-
-               sb.append("</div></div>");
             }
 
             out.write(sb.toString().getBytes());
@@ -867,12 +756,162 @@ public class CoverageReport
             // We still want to be able to jump to this section by clicking on
             // the links
             // in the chapter and section summaries
-            out
-                  .write(("<div style=\"visibility:hidden\" id=\"" + sectionId + "\"></div>\n")
+            out.write(("<div style=\"visibility:hidden\" id=\"" + sectionId + "\"></div>\n")
                         .getBytes());
-
          }
       }
+   }
+   
+   private void appendAssertionGroup(StringBuilder sb, AssertionGroup group) throws IOException
+   {
+      sb.append("  <div class=\"group\">\n");
+      sb.append("    <p class=\"description\">");
+      String text = parseStrikethrough(parseBold(parseLiteral(escape(group.getText()))));
+      sb.append(text);
+      sb.append("</p>\n");      
+      
+      sb.append("    <div class=\"groupAssertions\">\n");
+      for (AuditAssertion assertion : group.getAssertions())
+      {
+         appendAssertion(sb, assertion);
+      }
+      sb.append("    </div>\n");
+      
+      sb.append("  </div>\n");
+   }
+   
+   private void appendAssertion(StringBuilder sb, AuditAssertion assertion) throws IOException
+   {
+      List<SpecReference> coverage = getCoverageForAssertion(
+            assertion.getSection(), assertion.getId());
+      TestStatus status = getStatus(coverage);
+
+      String divClass = null;
+
+      if (assertion.isTestable())
+      {
+         if (status.equals(TestStatus.UNCOVERED))
+         {
+            divClass = "fail";            
+         } 
+         else if (status.equals(TestStatus.UNIMPLEMENTED))
+         {
+            divClass = "skip";
+         } 
+         else
+         {
+            divClass = "pass";
+         }
+      } 
+      else
+      {
+         divClass = "untestable";
+      }
+
+      sb.append("  <div class=\"" + divClass + "\">\n");
+
+      if (assertion.isImplied())
+      {
+         sb.append("<span class=\"implied\">The following assertion is not made explicitly by the spec, however it is implied</span>");
+      }
+
+      sb.append("    <span class=\"code\">");
+      sb.append(assertion.getId());
+      sb.append(")");
+
+      if (!Strings.isEmpty(assertion.getNote()))
+      {
+         sb.append("<img title=\"" + assertion.getNote()
+               + "\" src=\"images/blank.png\" class=\"stickynote\"/>");
+      }
+
+      sb.append("</span>\n");
+      sb.append("    <div class=\"results\">");
+
+      sb.append("<p class=\"description\">");
+      String imageFilename = assertion.getSection() + "." + assertion.getId()
+            + ".png";
+      File imageFile = new File(imageSrcDir, imageFilename);
+
+      if (imageFile.exists())
+      {
+         sb.append("<img src=\"images/" + imageFile.getName()
+               + "\" class=\"embeddedImage\"/>");
+         copyFile(imageFile, new File(imageTargetDir, imageFilename));
+      }
+
+      String assertionText = parseStrikethrough(parseBold(parseLiteral(escape(assertion
+            .getText()))));
+      sb.append(assertionText);
+      sb.append("</p>\n");
+
+      if (assertion.isTestable())
+      {
+         sb.append("    <div class=\"coverage\">\n");
+         sb.append("      <p class=\"coverageHeader\">Coverage</p>\n");
+
+         String currentPackageName = null;
+
+         if (status.equals(TestStatus.UNCOVERED))
+         {
+            sb.append("        <p class=\"noCoverage\">No tests exist for this assertion</p>\n");
+         } else
+         {
+            for (SpecReference ref : coverage)
+            {
+               if (!ref.getPackageName().equals(currentPackageName))
+               {
+                  currentPackageName = ref.getPackageName();
+                  sb.append("        <div class=\"packageName\">");
+                  sb.append(currentPackageName);
+                  sb.append("        </div>\n");
+               }
+
+               sb.append("        <div class=\"coverageMethod\">");
+               sb.append(ref.getClassName());
+               sb.append(".");
+               sb.append(ref.getMethodName());
+               sb.append("()");
+
+               if (fisheyeBaseUrl != null)
+               {
+                  sb.append("<a class=\"external\" target=\"_blank\" href=\"");
+                  sb.append(fisheyeBaseUrl);
+                  sb.append(currentPackageName.replace('.', '/'));
+                  sb.append("/");
+                  sb.append(ref.getClassName());
+                  sb.append(".java");
+                  sb.append("\">fisheye</a>");
+               }
+
+               if (svnBaseUrl != null)
+               {
+                  if (fisheyeBaseUrl != null)
+                  {
+                     sb.append("|");
+                  }
+
+                  sb.append("<a class=\"external\" target=\"_blank\" href=\"");
+                  sb.append(svnBaseUrl);
+                  sb.append(currentPackageName.replace('.', '/'));
+                  sb.append("/");
+                  sb.append(ref.getClassName());
+                  sb.append(".java");
+                  sb.append("\">svn</a>");
+               }
+
+               sb.append("</div>\n");
+            }
+         }
+
+         sb.append("    </div>\n");
+      } 
+      else if (!coverage.isEmpty())
+      {
+         sb.append("<b>A test exists for this untestable assertion!</b>");
+      }
+
+      sb.append("</div></div>\n");      
    }
 
    private String parseBold(String text)

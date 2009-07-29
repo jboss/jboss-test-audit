@@ -26,7 +26,7 @@ public class AuditParser
 {
    private String version;
    
-   private Map<String,List<AuditAssertion>> assertions = new HashMap<String,List<AuditAssertion>>();
+   private Map<String,List<SectionItem>> sectionItems = new HashMap<String,List<SectionItem>>();
    
    private Map<String,String> titles = new HashMap<String,String>();   
    
@@ -47,14 +47,14 @@ public class AuditParser
       return titles.get(sectionId);
    }
    
-   public Map<String,List<AuditAssertion>> getAssertions()
+   public Map<String,List<SectionItem>> getSectionItems()
    {
-      return assertions;
+      return sectionItems;
    }
    
    public List<String> getSectionIds()
    {
-      List<String> sectionIds = new ArrayList<String>(assertions.keySet());
+      List<String> sectionIds = new ArrayList<String>(sectionItems.keySet());
       
       Collections.sort(sectionIds, new Comparator<String>() {
          public int compare(String value1, String value2)
@@ -96,16 +96,42 @@ public class AuditParser
    }
    
    /**
-    * Returns a sorted list of assertions for the specified section ID
     * 
     * @param sectionId
     * @return
     */
    public List<AuditAssertion> getAssertionsForSection(String sectionId)
    {
-      List<AuditAssertion> sectionAssertions = new ArrayList<AuditAssertion>(assertions.get(sectionId));
-      Collections.sort(sectionAssertions);
-      return sectionAssertions;
+      List<AuditAssertion> assertions = new ArrayList<AuditAssertion>();
+      
+      for (SectionItem item : sectionItems.get(sectionId))
+      {
+         if (item instanceof AuditAssertion)
+         {
+            assertions.add((AuditAssertion) item);
+         }
+         else if (item instanceof AssertionGroup)
+         {
+            for (AuditAssertion assertion : ((AssertionGroup) item).getAssertions())
+            {
+               assertions.add(assertion);
+            }
+         }
+      }
+      
+      return assertions;
+   }
+   
+   /**
+    * Returns a list of items for the specified section ID
+    * 
+    * @param sectionId
+    * @return
+    */
+   public List<SectionItem> getItemsForSection(String sectionId)
+   {
+      List<SectionItem> items = new ArrayList<SectionItem>(sectionItems.get(sectionId));
+      return items;
    }
    
    /**
@@ -116,14 +142,24 @@ public class AuditParser
     */
    public boolean hasAssertion(String sectionId, String assertionId)
    {            
-      if (!assertions.containsKey(sectionId)) 
+      if (!sectionItems.containsKey(sectionId)) 
       {
          return false;
       }
       
-      for (AuditAssertion assertion : assertions.get(sectionId))
+      for (SectionItem item : sectionItems.get(sectionId))
       {
-         if (assertion.getId().equals(assertionId)) return true;
+         if (item instanceof AuditAssertion && ((AuditAssertion) item).getId().equals(assertionId)) 
+         {
+            return true;
+         }
+         else if (item instanceof AssertionGroup)
+         {
+            for (AuditAssertion assertion : ((AssertionGroup) item).getAssertions())
+            {
+               if (assertion.getId().equals(assertionId)) return true;      
+            }
+         }
       }
       
       return false;
@@ -156,7 +192,7 @@ public class AuditParser
       String sectionId = node.getAttribute("id");
       titles.put(sectionId, node.getAttribute("title"));
       
-      assertions.put(sectionId, new ArrayList<AuditAssertion>());
+      sectionItems.put(sectionId, new ArrayList<SectionItem>());
       
       NodeList assertionNodes = node.getChildNodes();
       
@@ -165,15 +201,42 @@ public class AuditParser
          if (assertionNodes.item(i) instanceof Element && 
              "assertion".equals(assertionNodes.item(i).getNodeName()))
          {
-            processAssertionNode(sectionId, (Element) assertionNodes.item(i));            
+            processAssertionNode(sectionId, (Element) assertionNodes.item(i), null);            
          }
+         else if (assertionNodes.item(i) instanceof Element && 
+               "group".equals(assertionNodes.item(i).getNodeName()))
+         {
+              processGroupNode(sectionId, (Element) assertionNodes.item(i));            
+         }         
       }            
    }
    
-   private void processAssertionNode(String sectionId, Element node)
-   {      
-      List<AuditAssertion> value = assertions.get(sectionId);
-                        
+   private void processGroupNode(String sectionId, Element node)
+   {
+      AssertionGroup group = new AssertionGroup(sectionId);
+      
+      NodeList children = node.getChildNodes();
+      
+      for (int i = 0; i < children.getLength(); i++)
+      {
+         Node child = children.item(i);
+         
+         if (child instanceof Element && "assertion".equals(child.getNodeName()))
+         {
+            processAssertionNode(sectionId, (Element) child, group);            
+         }
+         else if (child instanceof Element && "text".equals(child.getNodeName()))
+         {
+            group.setText(child.getTextContent());
+         }
+      }     
+      
+      List<SectionItem> items = sectionItems.get(sectionId);
+      items.add(group);         
+   }
+   
+   private void processAssertionNode(String sectionId, Element node, AssertionGroup group)
+   {                              
       String text = null;
       String note = null;
       
@@ -200,7 +263,17 @@ public class AuditParser
       boolean implied = node.hasAttribute("implied") ?
             Boolean.parseBoolean(node.getAttribute("implied")) : false;
       
-      value.add(new AuditAssertion(sectionId, 
-            node.getAttribute("id"), text, note, testable, implied));     
+      AuditAssertion assertion = new AuditAssertion(sectionId, 
+            node.getAttribute("id"), text, note, testable, implied, group);
+      
+      if (assertion.getGroup() != null)
+      {
+         group.addAssertion(assertion);
+      }
+      else
+      {
+         List<SectionItem> items = sectionItems.get(sectionId);
+         items.add(assertion);     
+      }
    }
 }
