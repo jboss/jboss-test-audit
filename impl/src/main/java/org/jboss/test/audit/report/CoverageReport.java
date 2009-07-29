@@ -69,6 +69,7 @@ public class CoverageReport
    private int failThreshold;
    private int passThreshold;
    private Set<String> unimplementedTestGroups;
+   private Map<String,List<SpecReference>> summaryTestGroups;
 
    public CoverageReport(List<SpecReference> references,
          AuditParser auditParser, File imageSrcDir)
@@ -137,6 +138,31 @@ public class CoverageReport
                }
             }
          }
+         
+         String summary = this.properties.getStringValue("summary_test_groups", null, false);
+         if (summary != null)
+         {
+            String[] parts = summary.split(",");
+            summaryTestGroups = new HashMap<String, List<SpecReference>>();
+            for (String part : parts)
+            {
+               if (!"".equals(part.trim()))
+               {
+                  summaryTestGroups.put(part.trim(), new ArrayList<SpecReference>());
+               }
+            }
+            
+            for (SpecReference ref : references)
+            {
+               for (String group : summaryTestGroups.keySet())
+               {
+                  if (ref.getGroups().contains(group))
+                  {
+                     summaryTestGroups.get(group).add(ref);
+                  }
+               }
+            }
+         }
       } catch (Exception ex)
       {
          // swallow
@@ -165,6 +191,7 @@ public class CoverageReport
       writeCoverage(out);
       writeUnmatched(out);
       writeUnversioned(out);
+      writeTestGroupSummary(out);
       writeFooter(out);
    }
 
@@ -247,28 +274,32 @@ public class CoverageReport
       sb.append("    margin-top: 8px;\n");
       sb.append("    font-weight: bold; }\n");
       sb.append("  .packageName {\n");
-      sb.append("   color: #999999;\n");
-      sb.append("   font-size: 9px;\n");
-      sb.append("   font-weight: bold; }\n");
+      sb.append("    color: #999999;\n");
+      sb.append("    font-size: 9px;\n");
+      sb.append("    font-weight: bold; }\n");
+      sb.append("  .groupName {\n");
+      sb.append("    color: #0000FF;\n");
+      sb.append("    font-size: 12px;\n");
+      sb.append("    font-weight: bold; }\n");            
       sb.append("  .embeddedImage {\n");
-      sb.append("   margin: 6px;\n");
-      sb.append("   border: 1px solid black;\n");
-      sb.append("   float: right; }\n");
+      sb.append("    margin: 6px;\n");
+      sb.append("    border: 1px solid black;\n");
+      sb.append("    float: right; }\n");
       sb.append("  .coverage {\n");
-      sb.append("   clear: both; }\n");
+      sb.append("    clear: both; }\n");
       sb.append("  .noCoverage {\n");
-      sb.append("   margin-top: 2px;\n");
-      sb.append("   margin-bottom: 2px;\n");
-      sb.append("   font-weight: bold;\n");
-      sb.append("   font-style: italic;\n");
-      sb.append("   color: #ff0000; }\n");
+      sb.append("    margin-top: 2px;\n");
+      sb.append("    margin-bottom: 2px;\n");
+      sb.append("    font-weight: bold;\n");
+      sb.append("    font-style: italic;\n");
+      sb.append("    color: #ff0000; }\n");
       sb.append("  .coverageHeader {\n");
-      sb.append("   font-weight: bold;\n");
-      sb.append("   text-decoration: underline;\n");
-      sb.append("   margin-top: 2px;\n");
-      sb.append("   margin-bottom: 2px; }\n");
+      sb.append("    font-weight: bold;\n");
+      sb.append("    text-decoration: underline;\n");
+      sb.append("    margin-top: 2px;\n");
+      sb.append("    margin-bottom: 2px; }\n");
       sb.append("  .coverageMethod {\n");
-      sb.append("   font-style: italic; }\n");
+      sb.append("    font-style: italic; }\n");
       sb.append("  .highlight {\n");
       sb.append("    background-color: #ffff00; }\n");
       sb.append("  .literal {\n");
@@ -334,6 +365,7 @@ public class CoverageReport
       sb.append("<div><a href=\"#coverageDetail\">Coverage Detail</a></div>");
       sb.append("<div><a href=\"#unmatched\">Unmatched Tests</a></div>");
       sb.append("<div><a href=\"#unversioned\">Unversioned Tests</a></div>");
+      sb.append("<div><a href=\"#groupsummary\">Test Group Summary</a></div>");
 
       out.write(sb.toString().getBytes());
    }
@@ -965,8 +997,7 @@ public class CoverageReport
             classes.size()));
 
       sb.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\">\n");
-      sb
-            .append("  <tr><th>Test Class</th><th>Version</th></tr>\n");
+      sb.append("  <tr><th>Test Class</th><th>Version</th></tr>\n");
 
       for (String cls : classes.keySet())
       {
@@ -986,6 +1017,41 @@ public class CoverageReport
       sb.append("</table>");
 
       out.write(sb.toString().getBytes());            
+   }
+   
+   private void writeTestGroupSummary(OutputStream out) throws IOException
+   {
+      if (summaryTestGroups == null || summaryTestGroups.isEmpty()) return;
+      
+      StringBuilder sb = new StringBuilder();
+      
+      sb.append("<h3 id=\"groupsummary\">Test group summary</h3>\n");
+      sb.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\">\n");
+      sb.append("  <tr><th>Test Class</th><th>Test method</th></tr>\n");
+      
+      for (String group : summaryTestGroups.keySet())
+      {
+         sb.append("<tr><td colspan=\"2\">");
+         sb.append("<div class=\"groupName\">");
+         sb.append(group);
+         sb.append("</div>");
+         sb.append("</td></tr>");
+         
+         for (SpecReference ref : summaryTestGroups.get(group))
+         {
+            sb.append("<tr><td>");
+            sb.append("<div class=\"packageName\">");
+            sb.append(ref.getPackageName());
+            sb.append("</div>");            
+            sb.append(ref.getClassName());
+            sb.append("</td><td>");
+            sb.append(ref.getMethodName());            
+            sb.append("()</td></tr>");
+         }
+      }
+      
+      sb.append("</table>");
+      out.write(sb.toString().getBytes());
    }
 
    private List<SpecReference> getCoverageForAssertion(String sectionId,
