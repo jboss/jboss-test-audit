@@ -48,8 +48,8 @@ public class CoverageReport
    private static final String COLOUR_SHADE_ORANGE = "#ffcc33";
    private static final String COLOUR_SHADE_LIGHT_GREY = "#eeeeee";
    
-   private static final String COLOUR_GRAPH_GRADIENT_FROM = "#ffeeee";
-   private static final String COLOUR_GRAPH_GRADIENT_TO = "#aaaaff";
+   private static final String COLOUR_GRAPH_GRADIENT_FROM = "#ff3333";
+   private static final String COLOUR_GRAPH_GRADIENT_TO = "#22aa22";
 
    /*
     * References to the spec assertions made by the test tests

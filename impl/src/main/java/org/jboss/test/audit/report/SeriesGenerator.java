@@ -10,6 +10,35 @@ import java.util.List;
  */
 public class SeriesGenerator
 {
+   public class SeriesElement
+   {
+      private int value;
+      private double rangeFrom;
+      private double rangeTo;
+      
+      public SeriesElement(double rangeFrom, double rangeTo, int value)
+      {
+         this.rangeFrom = rangeFrom;
+         this.rangeTo = rangeTo;
+         this.value = value;
+      }
+      
+      public int getValue()
+      {
+         return value;
+      }
+      
+      public double getRangeFrom()
+      {
+         return rangeFrom;
+      }
+      
+      public double getRangeTo()
+      {
+         return rangeTo;
+      }
+   }
+   
    private List<Double> values;
    
    public SeriesGenerator()
@@ -22,9 +51,9 @@ public class SeriesGenerator
       values.add(value);
    }
    
-   public List<Integer> getSeries(int bandSize, int total)
+   public List<SeriesElement> getSeries(int bandSize, int total)
    {      
-      List<Integer> series = new ArrayList<Integer>();
+      List<SeriesElement> series = new ArrayList<SeriesElement>();
     
       for (int i = 0; i < total; i++)
       {
@@ -37,7 +66,7 @@ public class SeriesGenerator
             if (value >= rangeFrom && (value < rangeTo || (i == total - 1 && value <= rangeTo))) count++;
          }
          
-         series.add(count);
+         series.add(new SeriesElement(rangeFrom, rangeTo, count));
       }      
       
       return series;

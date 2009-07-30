@@ -12,7 +12,7 @@ public class BarChartGenerator
    private String fromColour;
    private String toColour;
    
-   private List<Integer> values;
+   private List<SeriesGenerator.SeriesElement> values;
    
    private int chartHeight = 60; // pixels
    private int barWidth = 16; // pixels
@@ -23,7 +23,7 @@ public class BarChartGenerator
     * @param toColour
     * @param series A list of label:value values
     */
-   public BarChartGenerator(String fromColour, String toColour, List<Integer> values)
+   public BarChartGenerator(String fromColour, String toColour, List<SeriesGenerator.SeriesElement> values)
    {
       this.fromColour = fromColour;
       this.toColour = toColour;
@@ -37,13 +37,13 @@ public class BarChartGenerator
       sb.append("<div style=\"width:" + chartWidth + "px;height:" + chartHeight + "px;border:1px solid #000000\">\n");
       
       // Calculate the highest value for scaling purposes
-      int highest = 0;      
+      double highest = 0;      
       int highestPosition = 0; 
       for (int i = 0; i < values.size(); i++)
       {
-         if (values.get(i) > highest)
+         if (values.get(i).getValue() > highest)
          {
-            highest = values.get(i);
+            highest = values.get(i).getValue();
             highestPosition = i;
          }
       }
@@ -57,10 +57,15 @@ public class BarChartGenerator
       
       for (int i = 0; i < values.size(); i++)
       {
-         int val = values.get(i);
+         double val = values.get(i).getValue();
          long pixels = Math.round((chartHeight * 1.0) - (((val * 1.0) / (highest * 1.0)) * (0.9 * chartHeight)));
+         
+         String title = String.format("%.1f%% to %.1f%% coverage - %d sections", 
+               values.get(i).getRangeFrom(),
+               values.get(i).getRangeTo(),
+               values.get(i).getValue());
             
-         sb.append("  <div style=\"float:left;width:" + barWidth + "px;height:" + chartHeight + "px;background-color:" + gradient.get(i) + "\">\n");
+         sb.append("  <div title=\"" + title + "\" style=\"float:left;width:" + barWidth + "px;height:" + chartHeight + "px;background-color:" + gradient.get(i) + "\">\n");
          sb.append("    <div style=\"background-color:#ffffff;height:" + pixels + "px\">&nbsp;</div>\n");
          sb.append("  </div>\n");
       }
