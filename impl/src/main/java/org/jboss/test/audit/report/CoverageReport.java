@@ -47,6 +47,9 @@ public class CoverageReport
    private static final String COLOUR_SHADE_BLUE = "#80d1ff";
    private static final String COLOUR_SHADE_ORANGE = "#ffcc33";
    private static final String COLOUR_SHADE_LIGHT_GREY = "#eeeeee";
+   
+   private static final String COLOUR_GRAPH_GRADIENT_FROM = "#ffeeee";
+   private static final String COLOUR_GRAPH_GRADIENT_TO = "#aaaaff";
 
    /*
     * References to the spec assertions made by the test tests
@@ -187,6 +190,7 @@ public class CoverageReport
       calculateUnmatched();
       writeHeader(out);
       writeContents(out);
+      writeTestCoverageDistribution(out);
       writeChapterSummary(out);
       writeSectionSummary(out);
       writeCoverage(out);
@@ -382,6 +386,46 @@ public class CoverageReport
       sb.append("<div><a href=\"#unversioned\">Unversioned Tests</a></div>\n");
       sb.append("<div><a href=\"#groupsummary\">Test Group Summary</a></div>\n");
 
+      out.write(sb.toString().getBytes());
+   }
+   
+   private void writeTestCoverageDistribution(OutputStream out) throws IOException
+   {
+      StringBuilder sb = new StringBuilder();
+      sb.append("<h3 id=\"coverageDistribution\">Coverage Distribution</h3>\n");      
+      
+      SeriesGenerator gen = new SeriesGenerator();
+      
+      for (String sectionId : auditParser.getSectionIds())
+      {            
+         int testable = 0;
+         int implemented = 0;
+         int unimplemented = 0;
+   
+         for (AuditAssertion assertion : auditParser
+               .getAssertionsForSection(sectionId))
+         {
+            if (assertion.isTestable())
+               testable++;
+   
+            TestStatus status = getStatus(getCoverageForAssertion(sectionId,
+                  assertion.getId()));
+            if (status.equals(TestStatus.COVERED))
+            {
+               implemented++;
+            } else if (status.equals(TestStatus.UNIMPLEMENTED))
+            {
+               unimplemented++;
+            }
+         }
+   
+         gen.addValue(testable > 0 ? ((implemented * 1.0) / testable) * 100
+               : -1);
+      }
+      
+      sb.append(new BarChartGenerator(COLOUR_GRAPH_GRADIENT_FROM, 
+            COLOUR_GRAPH_GRADIENT_TO, gen.getSeries(10, 10)).generate());
+      
       out.write(sb.toString().getBytes());
    }
 
