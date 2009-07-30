@@ -32,7 +32,7 @@ public class BarChartGenerator
    
    public String generate()
    {
-      int chartWidth = barWidth * values.size();
+      int chartWidth = barWidth * values.size() + values.size(); // add values.size() for border widths
       StringBuilder sb = new StringBuilder();      
       sb.append("<div style=\"width:" + chartWidth + "px;height:" + chartHeight + "px;border:1px solid #000000\">\n");
       
@@ -65,7 +65,7 @@ public class BarChartGenerator
                values.get(i).getRangeTo(),
                values.get(i).getValue());
             
-         sb.append("  <div title=\"" + title + "\" style=\"float:left;width:" + barWidth + "px;height:" + chartHeight + "px;background-color:" + gradient.get(i) + "\">\n");
+         sb.append("  <div title=\"" + title + "\" style=\"float:left;border-right:1px solid #eeeeee;width:" + barWidth + "px;height:" + chartHeight + "px;background-color:" + gradient.get(i) + "\">\n");
          sb.append("    <div style=\"background-color:#ffffff;height:" + pixels + "px\">&nbsp;</div>\n");
          sb.append("  </div>\n");
       }
