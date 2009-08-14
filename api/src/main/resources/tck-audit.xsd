@@ -25,9 +25,10 @@
       <xs:documentation>Each section of the specification should be identified and entered</xs:documentation>
     </xs:annotation>
     <xs:complexType>
-      <xs:sequence>
+      <xs:choice minOccurs="0" maxOccurs="unbounded">
         <xs:element minOccurs="0" maxOccurs="unbounded" ref="audit:assertion"/>
-      </xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="audit:group"/>
+      </xs:choice>
       <xs:attributeGroup ref="audit:attlist.section"/>
     </xs:complexType>
   </xs:element>
@@ -43,7 +44,20 @@
          <xs:documentation>The section title</xs:documentation>
       </xs:annotation>
     </xs:attribute>
-  </xs:attributeGroup>  
+  </xs:attributeGroup>
+  
+  <xs:element name="group">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="1" maxOccurs="1" ref="audit:text">
+          <xs:annotation>
+            <xs:documentation>The specification text that this assertion represents. You can include highlighting such as _highlight_ or ~score out~.</xs:documentation>
+          </xs:annotation>
+        </xs:element>
+        <xs:element minOccurs="0" maxOccurs="1" ref="audit:assertion" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
     
   <xs:element name="assertion">
     <xs:complexType>

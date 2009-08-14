@@ -8,11 +8,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -73,7 +75,7 @@ public class CoverageReport
    private int failThreshold;
    private int passThreshold;
    private Set<String> unimplementedTestGroups;
-   private Map<String,List<SpecReference>> summaryTestGroups;
+   private Map<String, Set<Method>> summaryTestGroups;
 
    public CoverageReport(List<SpecReference> references,
          AuditParser auditParser, File imageSrcDir)
@@ -147,22 +149,23 @@ public class CoverageReport
          if (summary != null)
          {
             String[] parts = summary.split(",");
-            summaryTestGroups = new HashMap<String, List<SpecReference>>();
+            summaryTestGroups = new HashMap<String, Set<Method>>();
             for (String part : parts)
             {
                if (!"".equals(part.trim()))
                {
-                  summaryTestGroups.put(part.trim(), new ArrayList<SpecReference>());
+                  summaryTestGroups.put(part.trim(), new TreeSet<Method>(Method.COMPARATOR));
                }
             }
             
             for (SpecReference ref : references)
             {
+               Method method = new Method(ref.getPackageName(), ref.getClassName(), ref.getMethodName(), ref.getGroups());
                for (String group : summaryTestGroups.keySet())
                {
                   if (ref.getGroups().contains(group))
                   {
-                     summaryTestGroups.get(group).add(ref);
+                     summaryTestGroups.get(group).add(method);
                   }
                }
             }
@@ -1024,6 +1027,7 @@ public class CoverageReport
       sb
             .append("  <tr><th>Section</th><th>Assertion</th><th>Test Class</th><th>Test Method</th></tr>\n");
 
+      Collections.sort(unmatched, SpecReference.COMPARATOR);
       for (SpecReference ref : unmatched)
       {
          sb.append("<tr>");
@@ -1108,7 +1112,7 @@ public class CoverageReport
       
       StringBuilder sb = new StringBuilder();
       
-      sb.append("<h3 id=\"groupsummary\">Test group summary</h3>\n");
+      sb.append("<h3 id=\"groupsummary\">Highlighted test groups</h3>\n");
       sb.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\">\n");
       sb.append("  <tr><th>Test Class</th><th>Test method</th></tr>\n");
       
@@ -1117,10 +1121,13 @@ public class CoverageReport
          sb.append("<tr><td colspan=\"2\">");
          sb.append("<div class=\"groupName\">");
          sb.append(group);
+         sb.append(" (").append(summaryTestGroups.get(group).size()).append(")");
          sb.append("</div>");
          sb.append("</td></tr>");
          
-         for (SpecReference ref : summaryTestGroups.get(group))
+         summaryTestGroups.get(group);
+         
+         for (Method ref : summaryTestGroups.get(group))
          {
             sb.append("<tr><td>");
             sb.append("<div class=\"packageName\">");

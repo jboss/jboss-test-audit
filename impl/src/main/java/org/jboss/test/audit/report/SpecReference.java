@@ -1,6 +1,7 @@
 package org.jboss.test.audit.report;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -10,6 +11,20 @@ import java.util.List;
  */
 public class SpecReference
 {
+   
+   private static class SpecReferenceComparator implements Comparator<SpecReference>
+   {
+
+      @Override
+      public int compare(SpecReference arg0, SpecReference arg1)
+      { 
+         return arg0.getFqn().compareToIgnoreCase(arg1.getFqn());
+      }
+
+   }
+   
+   public static final Comparator<SpecReference> COMPARATOR = new SpecReferenceComparator();
+   
    private String specVersion;
    private String section;
    private String assertion;
@@ -94,5 +109,10 @@ public class SpecReference
       return "SpecReference[version=" + specVersion + ";section=" + section + ";assertion=" + assertion
             + ";class=" + packageName + "." + className + ";method="
             + methodName + "]";
+   }
+   
+   public String getFqn()
+   {
+      return packageName + "." + className + "." + methodName;
    }
 }
