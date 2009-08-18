@@ -33,5 +33,6 @@ public class AssertionGroup extends SectionItem
    public int compareTo(SectionItem other)
    {
       return 0;
-   }   
+   } 
+   
 }
