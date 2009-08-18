@@ -31,4 +31,10 @@ public abstract class SectionItem implements Comparable<SectionItem>
    }
 
    public abstract int compareTo(SectionItem other);
+   
+   @Override
+   public String toString()
+   {
+      return section;
+   }
 }

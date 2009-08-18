@@ -890,6 +890,10 @@ public class CoverageReport
          copyFile(imageFile, new File(imageTargetDir, imageFilename));
       }
 
+      if (assertion.getText() == null)
+      {
+         throw new IllegalStateException("Error parsing assertion (missing text) " + assertion);
+      }
       String assertionText = parseStrikethrough(parseBold(parseLiteral(escape(assertion
             .getText()))));
       sb.append(assertionText);

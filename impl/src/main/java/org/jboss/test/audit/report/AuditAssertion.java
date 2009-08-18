@@ -72,4 +72,10 @@ public class AuditAssertion extends SectionItem
       }
    }
    
+   @Override
+   public String toString()
+   {
+      return group + " " + id;
+   }
+   
 }
