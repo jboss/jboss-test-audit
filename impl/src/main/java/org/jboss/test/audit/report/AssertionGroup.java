@@ -3,6 +3,12 @@ package org.jboss.test.audit.report;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents a group of assertions, with each assertion testing an aspect of 
+ * a statement made by the spec.
+ *  
+ * @author Shane Bryzak
+ */
 public class AssertionGroup extends SectionItem
 {
    private List<AuditAssertion> assertions;

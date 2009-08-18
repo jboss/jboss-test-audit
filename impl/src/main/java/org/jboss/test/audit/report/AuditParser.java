@@ -24,6 +24,8 @@ import org.w3c.dom.NodeList;
  */
 public class AuditParser
 {
+   private String name;
+   private String specId;
    private String version;
    
    private Map<String,List<SectionItem>> sectionItems = new HashMap<String,List<SectionItem>>();
@@ -36,6 +38,16 @@ public class AuditParser
    {
       this.source = source;
    }   
+   
+   public String getName()
+   {
+      return name;
+   }
+   
+   public String getSpecId()
+   {
+      return specId;
+   }
    
    public String getVersion()
    {
@@ -175,6 +187,8 @@ public class AuditParser
       Document doc = builder.parse(source);
       NodeList sectionNodes = doc.getDocumentElement().getChildNodes();
       
+      name = doc.getDocumentElement().getAttribute("name");
+      specId = doc.getDocumentElement().getAttribute("id");
       version = doc.getDocumentElement().getAttribute("version");
       
       for (int i = 0; i < sectionNodes.getLength(); i++)

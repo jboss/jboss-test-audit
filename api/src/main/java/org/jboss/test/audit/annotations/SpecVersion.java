@@ -23,8 +23,8 @@ import java.lang.annotation.Target;
 
 @Documented
 @Target(ElementType.TYPE)
-public @interface SpecVersion {
-	
-	String value();
+public @interface SpecVersion {	
+   String spec() default "";
+	String version();
 }
 

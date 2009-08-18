@@ -7,6 +7,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,9 +45,9 @@ public class CoverageProcessor extends AbstractProcessor {
 
     private static final String DEFAULT_AUDIT_FILE_NAME = "test-audit.xml";
 
-    private final List<SpecReference> references = new ArrayList<SpecReference>();
+    private final Map<String,List<SpecReference>> references = new HashMap<String,List<SpecReference>>();
 
-    private AuditParser auditParser;
+    private Map<String,AuditParser> auditParsers;
 
     private File baseDir;
 
@@ -57,56 +58,75 @@ public class CoverageProcessor extends AbstractProcessor {
         super.init(env);
         
         createOutputDir();
-        InputStream in = getAuditFileInputStream();
+        
+        File[] auditFiles = getAuditFiles();
+        auditParsers = new HashMap<String,AuditParser>();
 
-        if (in == null) {
-            return;
-        }
+        for (File f : auditFiles)
+        {
+           InputStream in = getAuditFileInputStream(f);
 
-        try {
-            auditParser = new AuditParser(in);
-            auditParser.parse();
-        }
-        catch (Exception e) {
-           e.printStackTrace();
-            throw new RuntimeException("Unable to parse audit file.", e);
+           if (in == null) {
+               return;
+           }           
+           
+           try {
+               AuditParser auditParser = new AuditParser(in);
+               auditParser.parse();
+               
+               auditParsers.put(auditParser.getSpecId(), auditParser);
+           }
+           catch (Exception e) {
+              e.printStackTrace();
+               throw new RuntimeException("Unable to parse audit file.", e);
+           }
         }
     }
 
-    private InputStream getAuditFileInputStream() {
+    private InputStream getAuditFileInputStream(File file) {
         InputStream in;
         try {
-            in = new FileInputStream(getAuditFile());
+            in = new FileInputStream(file);
         }
         catch (IOException ex) {
-           System.err.println("Unable to open audit file - " + getAuditFile().getAbsolutePath());
+           System.err.println("Unable to open audit file - " + file.getAbsolutePath());
            System.err.println("No report generated");
            return null;
         }
         return in;
     }
     
-    private File getAuditFile()
+    private File[] getAuditFiles()
     {
-       String auditFileName = processingEnv.getOptions().get(AUDITFILE_OPTION_KEY);
+       String auditFileNames = processingEnv.getOptions().get(AUDITFILE_OPTION_KEY);
        
-       if (auditFileName == null || auditFileName.length() == 0) {
-           auditFileName = getCurrentWorkingDirectory() + DEFAULT_AUDIT_FILE_NAME;
+       if (auditFileNames == null || auditFileNames.length() == 0) 
+       {
+          auditFileNames = getCurrentWorkingDirectory() + DEFAULT_AUDIT_FILE_NAME;
            System.out.println(
-                   "No audit file specified. Trying default: " + auditFileName
+                   "No audit file specified. Trying default: " + auditFileNames
            );
        }
        else
        {
           System.out.println(
-             "Reading spec assertions from audit file: " + auditFileName);
+             "Reading spec assertions from audit file/s: " + auditFileNames);
        }
        
-       return new File(auditFileName);
+       String[] parts = auditFileNames.split(",");
+       
+       File[] files = new File[parts.length];
+       
+       for (int i = 0; i < parts.length; i++)
+       {
+          files[i] = new File(parts[i]);
+       }       
+       
+       return files;
     }
     
     private File getImagesDir() {
-       return new File(getAuditFile().getParentFile(), "/images");
+       return new File(getAuditFiles()[0].getParentFile(), "/images");
     }
 
     private void createOutputDir() {
@@ -136,7 +156,7 @@ public class CoverageProcessor extends AbstractProcessor {
 
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnvironment) {
 
-        if (auditParser == null) {
+        if (auditParsers.isEmpty()) {
             return false;
         }
 
@@ -144,15 +164,19 @@ public class CoverageProcessor extends AbstractProcessor {
             processAnnotatedMethods(roundEnvironment, type);
         }
 
-        if (roundEnvironment.processingOver()) {
-            try
-            {
-               new CoverageReport(references, auditParser, getImagesDir()).generate(baseDir);
-            } 
-            catch (IOException e)
-            {
-               throw new RuntimeException(e);
-            }
+        for (AuditParser auditParser : auditParsers.values())
+        {
+           if (roundEnvironment.processingOver()) {
+               try
+               {
+                  new CoverageReport(references.get(auditParser.getSpecId()) , 
+                        auditParser, getImagesDir()).generate(baseDir);
+               } 
+               catch (IOException e)
+               {
+                  throw new RuntimeException(e);
+               }
+           }
         }
         return false;
     }
@@ -194,7 +218,8 @@ public class CoverageProcessor extends AbstractProcessor {
         
         if (methodElement.getEnclosingElement().getAnnotation(SpecVersion.class) != null)
         {
-           ref.setSpecVersion(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).value());
+           ref.setSpecId(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).spec());
+           ref.setSpecVersion(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).version());
         }
         
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationParameters.entrySet()) {
@@ -224,7 +249,15 @@ public class CoverageProcessor extends AbstractProcessor {
              }
            }
         }
-        references.add(ref);
+        
+        List<SpecReference> refs = references.get(ref.getSpecId());
+        if (refs == null)
+        {
+           refs = new ArrayList<SpecReference>();
+           references.put(ref.getSpecId(), refs);
+        }
+        
+        refs.add(ref);
     }    
     
     private PackageElement getEnclosingPackageElement(ExecutableElement methodElement) {

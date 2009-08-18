@@ -25,6 +25,7 @@ public class SpecReference
    
    public static final Comparator<SpecReference> COMPARATOR = new SpecReferenceComparator();
    
+   private String specId;
    private String specVersion;
    private String section;
    private String assertion;
@@ -36,6 +37,11 @@ public class SpecReference
    public SpecReference()
    {
       this.groups = new ArrayList<String>();
+   }
+   
+   public void setSpecId(String specId)
+   {
+      this.specId = specId;
    }
    
    public void setSpecVersion(String specVersion)
@@ -66,6 +72,11 @@ public class SpecReference
    public void setMethodName(String methodName)
    {
       this.methodName = methodName;
+   }
+   
+   public String getSpecId()
+   {
+      return specId;
    }
    
    public String getSpecVersion()

@@ -58,7 +58,7 @@ public class BarChartGenerator
       for (int i = 0; i < values.size(); i++)
       {
          double val = values.get(i).getValue();
-         long pixels = Math.round((chartHeight * 1.0) - (((val * 1.0) / (highest * 1.0)) * (0.9 * chartHeight)));
+         long pixels = val == 0 ? chartHeight : Math.round((chartHeight * 1.0) - (((val * 1.0) / (highest * 1.0)) * (0.9 * chartHeight)));
          
          String title = String.format("%.1f%% to %.1f%% coverage - %d sections", 
                values.get(i).getRangeFrom(),

@@ -42,7 +42,7 @@ public class CoverageReport
          .compile("([~][^~]*[~])");
    private static final Pattern PATTERN_LITERAL = Pattern
          .compile("([|][^|]*[|])");
-   private static final String REPORT_FILE_NAME = "coverage.html";
+   private static final String REPORT_FILE_NAME = "coverage-%s.html";
 
    private static final String COLOUR_SHADE_GREEN = "#ddffdd";
    private static final String COLOUR_SHADE_RED = "#ffdddd";
@@ -84,22 +84,25 @@ public class CoverageReport
 
       unversioned = new ArrayList<SpecReference>();
       
-      for (SpecReference ref : references)
+      if (references != null)
       {
-         if (ref.getSpecVersion() == null || !ref.getSpecVersion().equalsIgnoreCase(
-                     auditParser.getVersion()))
+         for (SpecReference ref : references)
          {
-            unversioned.add(ref);
-         }
-         else
-         {                  
-            if (!this.references.containsKey(ref.getSection()))
+            if (ref.getSpecVersion() == null || !ref.getSpecVersion().equalsIgnoreCase(
+                        auditParser.getVersion()))
             {
-               this.references.put(ref.getSection(),
-                     new ArrayList<SpecReference>());
+               unversioned.add(ref);
             }
-   
-            this.references.get(ref.getSection()).add(ref);
+            else
+            {                  
+               if (!this.references.containsKey(ref.getSection()))
+               {
+                  this.references.put(ref.getSection(),
+                        new ArrayList<SpecReference>());
+               }
+      
+               this.references.get(ref.getSection()).add(ref);
+            }
          }
       }
 
@@ -178,7 +181,7 @@ public class CoverageReport
 
    public void generate(File outputDir) throws IOException
    {
-      File coverageFile = new File(outputDir, REPORT_FILE_NAME);
+      File coverageFile = new File(outputDir, String.format(REPORT_FILE_NAME, auditParser.getSpecId()));
       FileOutputStream out = new FileOutputStream(coverageFile);
 
       imageTargetDir = new File(outputDir, "/images");
@@ -252,7 +255,7 @@ public class CoverageReport
       sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.1//EN\"\n");
       sb.append("\"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd\">\n");
       sb.append("<html>\n");
-      sb.append("<head><title>JSR-299 TCK Coverage Report</title>\n");
+      sb.append("<head><title>" + auditParser.getName() + " TCK Coverage Report</title>\n");
 
       sb.append("<style type=\"text/css\">\n");
       sb.append("  body {\n");
@@ -369,7 +372,7 @@ public class CoverageReport
       sb.append("</style>\n");
 
       sb.append("</head><body>");
-      sb.append("<h1>JSR-299 TCK Coverage</h1>");
+      sb.append("<h1>" + auditParser.getName() + " TCK Coverage</h1>");
       sb.append("<h2>");
       sb.append(auditParser.getVersion());
       sb.append("</h2>\n");
