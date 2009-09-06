@@ -363,7 +363,7 @@ public class CoverageReport
       sb.append("    background-color: " + COLOUR_SHADE_BLUE + "; }\n");
       sb.append("  .stickynote {\n");
       sb
-            .append("    background: url(images/stickynote.png) left top no-repeat;\n");
+            .append("    background: url(http://www.seamframework.org/service/File/94243) left top no-repeat;\n");
       sb.append("    position: absolute;\n");
       sb.append("    left: 16px;\n");
       sb.append("    width: 30px;\n");
@@ -872,7 +872,7 @@ public class CoverageReport
       if (!Strings.isEmpty(assertion.getNote()))
       {
          sb.append("<img title=\"" + assertion.getNote()
-               + "\" src=\"images/blank.png\" class=\"stickynote\"/>");
+               + "\" src=\"http://www.seamframework.org/service/File/94244\" class=\"stickynote\"/>");
       }
 
       sb.append("</span>\n");
