@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.jboss.test-audit</groupId>
         <artifactId>jboss-test-audit-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+        <version>1.0.0</version>
     </parent>
 
     <artifactId>jboss-test-audit-impl</artifactId>
@@ -46,11 +46,10 @@
                         <phase>process-test-resources</phase>
                         <configuration>
                             <tasks>
-                                <javac srcdir="src/test/java" destdir="target/classes"
-                                    failonerror="false" excludes="test/**">
-                                    <compilerarg value="-proc:only"/>
+                                <javac srcdir="src/test/java" destdir="target/classes" failonerror="false" excludes="test/**">
+                                    <compilerarg value="-proc:only" />
                                     <classpath>
-                                        <path refid="maven.test.classpath"/>
+                                        <path refid="maven.test.classpath" />
                                     </classpath>
                                 </javac>
                             </tasks>

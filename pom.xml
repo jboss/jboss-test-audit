@@ -3,7 +3,7 @@
 
     <groupId>org.jboss.test-audit</groupId>
     <artifactId>jboss-test-audit-parent</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <packaging>pom</packaging>
     <name>Test Audit Utils Parent</name>
 
@@ -31,7 +31,7 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:https://svn.jboss.org/repos/test-utils/jboss-test-audit/trunk</connection>
+        <connection>scm:svn:https://svn.jboss.org/repos/test-utils/jboss-test-audit/tags/v1_0_0</connection>
     </scm>
 
     <developers>
