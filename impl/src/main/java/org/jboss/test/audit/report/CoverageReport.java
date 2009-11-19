@@ -448,6 +448,7 @@ public class CoverageReport
       sb.append("  <th>Assertions</th>\n");
       sb.append("  <th>Testable</th>\n");
       sb.append("  <th>Total Tested</th>\n");
+      sb.append("  <th>Total Tests</th>\n");
       sb.append("  <th>Tested<br /> (problematic)</th>\n");
       sb.append("  <th>Tested<br /> (working)</th>\n");
       sb.append("  <th>Coverage %</th>\n");
@@ -458,6 +459,7 @@ public class CoverageReport
       int totalAssertions = 0;
       int totalTestable = 0;
       int totalTested = 0;
+      int totalTests = 0;
       int totalUnimplemented = 0;
       int totalImplemented = 0;
 
@@ -471,6 +473,7 @@ public class CoverageReport
 
             int assertions = auditParser.getAssertionsForSection(sectionId).size();
             int testable = 0;
+            int testCount = 0;
             int implemented = 0;
             int unimplemented = 0;
 
@@ -504,9 +507,10 @@ public class CoverageReport
                   {
                      if (assertion.isTestable())
                         testable++;
-
-                     TestStatus status = getStatus(getCoverageForAssertion(
-                           subSectionId, assertion.getId()));
+                     List<SpecReference> coverage = getCoverageForAssertion(
+                           subSectionId, assertion.getId());
+                     testCount += coverage.size();
+                     TestStatus status = getStatus(coverage);
                      if (status.equals(TestStatus.COVERED))
                      {
                         implemented++;
@@ -527,6 +531,7 @@ public class CoverageReport
             totalTestable += testable;
             totalImplemented += implemented;
             totalTested += tested;
+            totalTests += testCount;
             totalUnimplemented += unimplemented;
 
             if (odd)
@@ -556,11 +561,15 @@ public class CoverageReport
             sb.append("<td align=\"center\">");
             sb.append(testable);
             sb.append("</td>");
-
+            
             sb.append("<td align=\"center\">");
             sb.append(tested);
             sb.append("</td>");
 
+            sb.append("<td align=\"center\">");
+            sb.append(testCount);
+            sb.append("</td>");
+            
             sb.append("<td align=\"center\">");
             sb.append(unimplemented);
             sb.append("</td>");
@@ -606,6 +615,10 @@ public class CoverageReport
 
       sb.append("<td align=\"center\">");
       sb.append(totalTested);
+      sb.append("</td>");
+      
+      sb.append("<td align=\"center\">");
+      sb.append(totalTests);
       sb.append("</td>");
 
       sb.append("<td align=\"center\">");
