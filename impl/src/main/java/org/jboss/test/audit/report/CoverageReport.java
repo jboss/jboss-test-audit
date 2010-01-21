@@ -829,6 +829,10 @@ public class CoverageReport
    {
       sb.append("  <div class=\"group\">\n");
       sb.append("    <p class=\"description\">");
+      if (group.getText() == null)
+      {
+         throw new IllegalStateException("Group text should not be null " + group);
+      }
       String text = parseStrikethrough(parseBold(parseLiteral(escape(group.getText()))));
       sb.append(text);
       sb.append("</p>\n");      
