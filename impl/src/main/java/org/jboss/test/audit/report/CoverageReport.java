@@ -32,6 +32,8 @@ public class CoverageReport
    public enum TestStatus {
       COVERED, UNCOVERED, UNIMPLEMENTED;
    }
+   
+   public static final String GITHUB_BASE_URL_PROPERTY = "github_base_url";
 
    public static final String FISHEYE_BASE_URL_PROPERTY = "fisheye_base_url";
 
@@ -66,8 +68,8 @@ public class CoverageReport
    private RuntimeProperties properties;
 
    private String fisheyeBaseUrl = null;
-
    private String svnBaseUrl = null;
+   private String githubBaseUrl = null;
 
    private List<SpecReference> unmatched;
    private List<SpecReference> unversioned;
@@ -112,20 +114,26 @@ public class CoverageReport
 
       try
       {
+    	 // FishEye
          fisheyeBaseUrl = this.properties.getStringValue(
                FISHEYE_BASE_URL_PROPERTY, null, false);
-
-         if (!fisheyeBaseUrl.endsWith("/"))
+         if (fisheyeBaseUrl != null && !fisheyeBaseUrl.endsWith("/"))
          {
-            fisheyeBaseUrl = fisheyeBaseUrl + "/";
+            fisheyeBaseUrl += "/";
          }
-
+         // SVN
          svnBaseUrl = this.properties.getStringValue(SVN_BASE_URL_PROPERTY,
                null, false);
-
-         if (!svnBaseUrl.endsWith("/"))
+         if (svnBaseUrl != null && !svnBaseUrl.endsWith("/"))
          {
-            svnBaseUrl = svnBaseUrl + "/";
+            svnBaseUrl += "/";
+         }
+         // GitHub
+         githubBaseUrl = this.properties.getStringValue(GITHUB_BASE_URL_PROPERTY,
+                 null, false);
+         if (githubBaseUrl != null && !githubBaseUrl.endsWith("/"))
+         {
+        	 githubBaseUrl += "/";
          }
 
          passThreshold = this.properties.getIntValue("pass_threshold", 75,
@@ -362,13 +370,13 @@ public class CoverageReport
       sb.append("    min-height: 36px;\n");
       sb.append("    background-color: " + COLOUR_SHADE_BLUE + "; }\n");
       sb.append("  .stickynote {\n");
-      sb
-            .append("    background: url(http://www.seamframework.org/service/File/94243) left top no-repeat;\n");
+      // sb
+      //      .append("    background: url(http://www.seamframework.org/service/File/94243) left top no-repeat;\n");
       sb.append("    position: absolute;\n");
       sb.append("    left: 16px;\n");
-      sb.append("    width: 30px;\n");
-      sb.append("    height: 30px;\n");
-      sb.append("    margin-top:16px; }\n");
+      // sb.append("    width: 20px;\n");
+      // sb.append("    height: 20px;\n");
+      sb.append("    margin-top: 2em; }\n");
       sb.append("</style>\n");
 
       sb.append("</head><body>");
@@ -888,8 +896,9 @@ public class CoverageReport
 
       if (!Strings.isEmpty(assertion.getNote()))
       {
-         sb.append("<img title=\"" + assertion.getNote()
-               + "\" src=\"http://www.seamframework.org/service/File/94244\" class=\"stickynote\"/>");
+         // sb.append("<img title=\"" + assertion.getNote()
+         //      + "\" src=\"http://www.seamframework.org/service/File/94244\" class=\"stickynote\"/>");
+    	  sb.append("<img title=\"" + assertion.getNote() + "\" alt=\"" + assertion.getNote() + "\" src=\"images/stickynote.png\" class=\"stickynote\" width=\"20\" height=\"20\"/>");
       }
 
       sb.append("</span>\n");
@@ -943,9 +952,12 @@ public class CoverageReport
                sb.append(".");
                sb.append(ref.getMethodName());
                sb.append("()");
+               
+               boolean appendLinkPipe = false;
 
                if (fisheyeBaseUrl != null)
                {
+            	  appendLinkPipe = true;
                   sb.append("<a class=\"external\" target=\"_blank\" href=\"");
                   sb.append(fisheyeBaseUrl);
                   sb.append(currentPackageName.replace('.', '/'));
@@ -957,11 +969,11 @@ public class CoverageReport
 
                if (svnBaseUrl != null)
                {
-                  if (fisheyeBaseUrl != null)
+                  if (appendLinkPipe)
                   {
                      sb.append("|");
                   }
-
+                  appendLinkPipe = true;
                   sb.append("<a class=\"external\" target=\"_blank\" href=\"");
                   sb.append(svnBaseUrl);
                   sb.append(currentPackageName.replace('.', '/'));
@@ -969,6 +981,21 @@ public class CoverageReport
                   sb.append(ref.getClassName());
                   sb.append(".java");
                   sb.append("\">svn</a>");
+               }
+               
+               if (githubBaseUrl != null)
+               {
+            	  if (appendLinkPipe)
+                  {
+                     sb.append("|");
+                  }
+                  sb.append("<a class=\"external\" target=\"_blank\" href=\"");
+                  sb.append(githubBaseUrl);
+                  sb.append(currentPackageName.replace('.', '/'));
+                  sb.append("/");
+                  sb.append(ref.getClassName());
+                  sb.append(".java");
+                  sb.append("\">github</a>");
                }
 
                sb.append("</div>\n");
