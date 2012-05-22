@@ -11,7 +11,12 @@
         Utility classes for TCK Test Coverage Report.
     </description>
 
-    <!--issueManagement> <system>JIRA</system> <url>http://opensource.atlassian.com/projects/jboss/browse/BVAL</url> </issueManagement -->
+    <url>http://www.jboss.org</url>
+
+    <issueManagement>
+        <system>JIRA</system>
+        <url>https://issues.jboss.org/</url>
+    </issueManagement>
 
     <modules>
         <module>api</module>
