@@ -8,7 +8,7 @@
 
     <artifactId>jboss-test-audit-impl</artifactId>
     <packaging>jar</packaging>
-    <name>Test Audit Utils API</name>
+    <name>Test Audit Utils Implementation</name>
     
     <dependencies>
         <dependency>
