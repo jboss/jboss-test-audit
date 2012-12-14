@@ -3,7 +3,6 @@ package org.jboss.test.audit.report;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +29,7 @@ public class AuditParser
    
    private Map<String,List<SectionItem>> sectionItems = new HashMap<String,List<SectionItem>>();
    
-   private Map<String,String> titles = new HashMap<String,String>();   
+   private Map<String,String> titles = new HashMap<String,String>();
    
    private InputStream source;
    
@@ -68,42 +67,7 @@ public class AuditParser
    {
       List<String> sectionIds = new ArrayList<String>(sectionItems.keySet());
       
-      Collections.sort(sectionIds, new Comparator<String>() {
-         public int compare(String value1, String value2)
-         {
-            String[] parts1 = value1.split("[.]");
-            String[] parts2 = value2.split("[.]");
-            
-            for (int i = 0;;i++)
-            {                              
-               if (parts1.length < (i + 1)) 
-               {
-                  return parts2.length < (i + 1) ? 0 : 0;
-               }
-               else if (parts2.length < (i + 1))
-               {
-                  return parts1.length < (i + 1) ? 0 : 1;
-               }
-
-               try
-               {
-                  int val1 = Integer.parseInt(parts1[i]);
-                  int val2 = Integer.parseInt(parts2[i]);
-                  
-                  if (val1 != val2) return val1 - val2;
-               }
-               catch (NumberFormatException ex)
-               {
-                  int comp = parts1[i].compareTo(parts2[i]);
-                  if (comp != 0) 
-                  {
-                     return comp;
-                  }                  
-               }                              
-            }            
-         }
-      });
-      
+      Collections.sort(sectionIds, new SectionIdComparator());
       return sectionIds;
    }
    

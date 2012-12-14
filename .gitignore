@@ -1,2 +1,19 @@
-/.settings
-/.project
+# Build output directories
+/target
+*/target
+/build
+*/build
+/bin
+*/bin
+
+# IntelliJ specific files/directories
+/out
+.idea
+*.ipr
+*.iws
+*.iml
+
+# Eclipse specific files/directories
+.classpath
+.project
+.settings
