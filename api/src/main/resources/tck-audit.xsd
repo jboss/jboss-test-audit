@@ -17,6 +17,16 @@
       </xs:sequence>
       <xs:attribute name="name" type="xs:string"/>
       <xs:attribute name="version" type="xs:string"/>
+      <xs:attribute name="generateSectionIds" type="xs:boolean" default="false">
+        <xs:annotation>
+         <xs:documentation>If true the section id will be generated (similar to automatic numbering of headers)</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="generateSectionClass" type="xs:boolean" default="false">
+        <xs:annotation>
+         <xs:documentation>If true a helper class with section contants will be generated</xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
     </xs:complexType>
   </xs:element>           
   
@@ -42,6 +52,11 @@
     <xs:attribute name="title" type="xs:string">
      <xs:annotation>
          <xs:documentation>The section title</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="level" type="xs:int">
+     <xs:annotation>
+         <xs:documentation>The section hierarchy info</xs:documentation>
       </xs:annotation>
     </xs:attribute>
   </xs:attributeGroup>

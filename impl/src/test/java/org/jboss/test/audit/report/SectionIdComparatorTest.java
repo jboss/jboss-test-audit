@@ -14,7 +14,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package org.jboss.test.audit;
+package org.jboss.test.audit.report;
 
 import org.jboss.test.audit.report.SectionIdComparator;
 import org.junit.Before;

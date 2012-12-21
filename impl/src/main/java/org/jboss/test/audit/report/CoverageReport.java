@@ -18,12 +18,13 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jboss.test.audit.config.PropertyKeys;
 import org.jboss.test.audit.config.RuntimeProperties;
 import org.jboss.test.audit.config.Strings;
 
 /**
  * Generates the TCK spec coverage report
- * 
+ *
  * @author Shane Bryzak
  */
 public class CoverageReport
@@ -32,12 +33,6 @@ public class CoverageReport
    public enum TestStatus {
       COVERED, UNCOVERED, UNIMPLEMENTED;
    }
-   
-   public static final String GITHUB_BASE_URL_PROPERTY = "github_base_url";
-
-   public static final String FISHEYE_BASE_URL_PROPERTY = "fisheye_base_url";
-
-   public static final String SVN_BASE_URL_PROPERTY = "svn_base_url";
 
    private static final Pattern PATTERN_BOLD = Pattern.compile("([_][^_]*[_])");
    private static final Pattern PATTERN_STRIKETHROUGH = Pattern
@@ -51,7 +46,7 @@ public class CoverageReport
    private static final String COLOUR_SHADE_BLUE = "#80d1ff";
    private static final String COLOUR_SHADE_ORANGE = "#ffcc33";
    private static final String COLOUR_SHADE_LIGHT_GREY = "#eeeeee";
-   
+
    private static final String COLOUR_GRAPH_GRADIENT_FROM = "#ff3333";
    private static final String COLOUR_GRAPH_GRADIENT_TO = "#22aa22";
 
@@ -80,12 +75,12 @@ public class CoverageReport
    private Map<String, Set<Method>> summaryTestGroups;
 
    public CoverageReport(List<SpecReference> references,
-         AuditParser auditParser, File imageSrcDir)
+         AuditParser auditParser, File imageSrcDir, RuntimeProperties properties)
    {
       this.references = new HashMap<String, List<SpecReference>>();
 
       unversioned = new ArrayList<SpecReference>();
-      
+
       if (references != null)
       {
          for (SpecReference ref : references)
@@ -96,13 +91,13 @@ public class CoverageReport
                unversioned.add(ref);
             }
             else
-            {                  
+            {
                if (!this.references.containsKey(ref.getSection()))
                {
                   this.references.put(ref.getSection(),
                         new ArrayList<SpecReference>());
                }
-      
+
                this.references.get(ref.getSection()).add(ref);
             }
          }
@@ -110,39 +105,39 @@ public class CoverageReport
 
       this.auditParser = auditParser;
       this.imageSrcDir = imageSrcDir;
-      this.properties = new RuntimeProperties();
+      this.properties = properties;
 
       try
       {
     	 // FishEye
          fisheyeBaseUrl = this.properties.getStringValue(
-               FISHEYE_BASE_URL_PROPERTY, null, false);
+               PropertyKeys.FISHEYE_BASE_URL_PROPERTY, null, false);
          if (fisheyeBaseUrl != null && !fisheyeBaseUrl.endsWith("/"))
          {
             fisheyeBaseUrl += "/";
          }
          // SVN
-         svnBaseUrl = this.properties.getStringValue(SVN_BASE_URL_PROPERTY,
+         svnBaseUrl = this.properties.getStringValue(PropertyKeys.SVN_BASE_URL_PROPERTY,
                null, false);
          if (svnBaseUrl != null && !svnBaseUrl.endsWith("/"))
          {
             svnBaseUrl += "/";
          }
          // GitHub
-         githubBaseUrl = this.properties.getStringValue(GITHUB_BASE_URL_PROPERTY,
+         githubBaseUrl = this.properties.getStringValue(PropertyKeys.GITHUB_BASE_URL_PROPERTY,
                  null, false);
          if (githubBaseUrl != null && !githubBaseUrl.endsWith("/"))
          {
         	 githubBaseUrl += "/";
          }
 
-         passThreshold = this.properties.getIntValue("pass_threshold", 75,
+         passThreshold = this.properties.getIntValue(PropertyKeys.PASS_THRESHOLD, 75,
                false);
-         failThreshold = this.properties.getIntValue("fail_threshold", 50,
+         failThreshold = this.properties.getIntValue(PropertyKeys.FAIL_THRESHOLD, 50,
                false);
 
          String unimplemented = this.properties.getStringValue(
-               "unimplemented_test_groups", null, false);
+               PropertyKeys.UNIMPLEMENTED_TEST_GROUPS, null, false);
          if (unimplemented != null)
          {
             String[] parts = unimplemented.split(",");
@@ -155,8 +150,8 @@ public class CoverageReport
                }
             }
          }
-         
-         String summary = this.properties.getStringValue("summary_test_groups", null, false);
+
+         String summary = this.properties.getStringValue(PropertyKeys.SUMMARY_TEST_GROUPS, null, false);
          if (summary != null)
          {
             String[] parts = summary.split(",");
@@ -168,7 +163,7 @@ public class CoverageReport
                   summaryTestGroups.put(part.trim(), new TreeSet<Method>(Method.COMPARATOR));
                }
             }
-            
+
             for (SpecReference ref : references)
             {
                Method method = new Method(ref.getPackageName(), ref.getClassName(), ref.getMethodName(), ref.getGroups());
@@ -187,20 +182,35 @@ public class CoverageReport
       }
    }
 
-   public void generate(File outputDir) throws IOException
+   /**
+    *
+    * @param outputDir
+    * @throws IOException
+    */
+   public void generateToOutputDir(File outputDir) throws IOException {
+
+	  File coverageFile = new File(outputDir, String.format(REPORT_FILE_NAME, auditParser.getSpecId()));
+	  FileOutputStream out = new FileOutputStream(coverageFile);
+
+	  imageTargetDir = new File(outputDir, "/images");
+	  if (!imageTargetDir.exists())
+	  {
+	    	  imageTargetDir.mkdirs();
+	  }
+
+	  copyResourceImage("stickynote.png");
+	  copyResourceImage("blank.png");
+
+	  generate(out);
+   }
+
+   /**
+    *
+    * @param out
+    * @throws IOException
+    */
+   public void generate(OutputStream out) throws IOException
    {
-      File coverageFile = new File(outputDir, String.format(REPORT_FILE_NAME, auditParser.getSpecId()));
-      FileOutputStream out = new FileOutputStream(coverageFile);
-
-      imageTargetDir = new File(outputDir, "/images");
-      if (!imageTargetDir.exists())
-      {
-         imageTargetDir.mkdirs();
-      }
-
-      copyResourceImage("stickynote.png");
-      copyResourceImage("blank.png");
-
       calculateUnmatched();
       writeHeader(out);
       writeContents(out);
@@ -299,7 +309,7 @@ public class CoverageReport
       sb.append("  .groupName {\n");
       sb.append("    color: #0000FF;\n");
       sb.append("    font-size: 12px;\n");
-      sb.append("    font-weight: bold; }\n");            
+      sb.append("    font-weight: bold; }\n");
       sb.append("  .embeddedImage {\n");
       sb.append("    margin: 6px;\n");
       sb.append("    border: 1px solid black;\n");
@@ -331,16 +341,16 @@ public class CoverageReport
       sb.append("    border-top: 1px solid #000000;\n");
       sb.append("    border-bottom: 1px solid #000000;\n");
       sb.append("    padding-bottom: 1px;\n");
-      sb.append("    margin-bottom: 2px;\n");      
+      sb.append("    margin-bottom: 2px;\n");
       sb.append("    min-height: 36px;\n");
-      sb.append("    background-color: " + COLOUR_SHADE_LIGHT_GREY + "; }\n");      
+      sb.append("    background-color: " + COLOUR_SHADE_LIGHT_GREY + "; }\n");
       sb.append("  .groupAssertions {\n");
       sb.append("    padding-bottom: 1px;\n");
       sb.append("    margin-top: 8px;\n");
       sb.append("    margin-left: 50px;\n");
-      sb.append("    margin-bottom: 2px;\n");      
+      sb.append("    margin-bottom: 2px;\n");
       sb.append("    min-height: 36px; \n");
-      sb.append("    background-color: ffffff; }\n");                  
+      sb.append("    background-color: ffffff; }\n");
       sb.append("  .pass {\n");
       sb.append("    border-top: 1px solid #488c41;\n");
       sb.append("    border-bottom: 1px solid #488c41;\n");
@@ -402,26 +412,26 @@ public class CoverageReport
 
       out.write(sb.toString().getBytes());
    }
-   
+
    private void writeTestCoverageDistribution(OutputStream out) throws IOException
    {
       StringBuilder sb = new StringBuilder();
-      sb.append("<h3 id=\"coverageDistribution\">Coverage Distribution</h3>\n");      
-      
+      sb.append("<h3 id=\"coverageDistribution\">Coverage Distribution</h3>\n");
+
       SeriesGenerator gen = new SeriesGenerator();
-      
+
       for (String sectionId : auditParser.getSectionIds())
-      {            
+      {
          int testable = 0;
          int implemented = 0;
          int unimplemented = 0;
-   
+
          for (AuditAssertion assertion : auditParser
                .getAssertionsForSection(sectionId))
          {
             if (assertion.isTestable())
                testable++;
-   
+
             TestStatus status = getStatus(getCoverageForAssertion(sectionId,
                   assertion.getId()));
             if (status.equals(TestStatus.COVERED))
@@ -432,14 +442,14 @@ public class CoverageReport
                unimplemented++;
             }
          }
-   
+
          gen.addValue(testable > 0 ? ((implemented * 1.0) / testable) * 100
                : -1);
       }
-      
-      sb.append(new BarChartGenerator(COLOUR_GRAPH_GRADIENT_FROM, 
+
+      sb.append(new BarChartGenerator(COLOUR_GRAPH_GRADIENT_FROM,
             COLOUR_GRAPH_GRADIENT_TO, gen.getSeries(10, 10)).generate());
-      
+
       out.write(sb.toString().getBytes());
    }
 
@@ -569,7 +579,7 @@ public class CoverageReport
             sb.append("<td align=\"center\">");
             sb.append(testable);
             sb.append("</td>");
-            
+
             sb.append("<td align=\"center\">");
             sb.append(tested);
             sb.append("</td>");
@@ -577,7 +587,7 @@ public class CoverageReport
             sb.append("<td align=\"center\">");
             sb.append(testCount);
             sb.append("</td>");
-            
+
             sb.append("<td align=\"center\">");
             sb.append(unimplemented);
             sb.append("</td>");
@@ -624,7 +634,7 @@ public class CoverageReport
       sb.append("<td align=\"center\">");
       sb.append(totalTested);
       sb.append("</td>");
-      
+
       sb.append("<td align=\"center\">");
       sb.append(totalTests);
       sb.append("</td>");
@@ -701,6 +711,9 @@ public class CoverageReport
          sb.append(" ");
          sb.append(auditParser.getSectionTitle(sectionId));
          sb.append("</a>");
+         if(auditParser.hasSectionIdsGenerated()) {
+        	 sb.append(" <sup>["+auditParser.getSectionOriginalId(sectionId)+"]</sup>");
+         }
          sb.append("</td>");
 
          int assertions = auditParser.getAssertionsForSection(sectionId).size();
@@ -795,8 +808,8 @@ public class CoverageReport
       for (String sectionId : auditParser.getSectionIds())
       {
          List<SectionItem> items = auditParser.getItemsForSection(sectionId);
-         
-         
+
+
          //List<AuditAssertion> sectionAssertions = auditParser
                ///getAssertionsForSection(sectionId);
 
@@ -804,9 +817,11 @@ public class CoverageReport
          {
             StringBuilder sb = new StringBuilder();
 
+            String originalSectionIdInfo = auditParser.hasSectionIdsGenerated() ? " <sup>["+auditParser.getSectionOriginalId(sectionId)+"]</sup>" : "";
+
             out.write(("<h4 class=\"sectionHeader\" id=\"" + sectionId
                   + "\">Section " + sectionId + " - "
-                  + escape(auditParser.getSectionTitle(sectionId)) + "</h4>\n")
+                  + escape(auditParser.getSectionTitle(sectionId)) + originalSectionIdInfo+ "</h4>\n")
                   .getBytes());
 
             for (SectionItem item : items)
@@ -832,7 +847,7 @@ public class CoverageReport
          }
       }
    }
-   
+
    private void appendAssertionGroup(StringBuilder sb, AssertionGroup group) throws IOException
    {
       sb.append("  <div class=\"group\">\n");
@@ -843,18 +858,18 @@ public class CoverageReport
       }
       String text = parseStrikethrough(parseBold(parseLiteral(escape(group.getText()))));
       sb.append(text);
-      sb.append("</p>\n");      
-      
+      sb.append("</p>\n");
+
       sb.append("    <div class=\"groupAssertions\">\n");
       for (AuditAssertion assertion : group.getAssertions())
       {
          appendAssertion(sb, assertion);
       }
       sb.append("    </div>\n");
-      
+
       sb.append("  </div>\n");
    }
-   
+
    private void appendAssertion(StringBuilder sb, AuditAssertion assertion) throws IOException
    {
       List<SpecReference> coverage = getCoverageForAssertion(
@@ -867,17 +882,17 @@ public class CoverageReport
       {
          if (status.equals(TestStatus.UNCOVERED))
          {
-            divClass = "fail";            
-         } 
+            divClass = "fail";
+         }
          else if (status.equals(TestStatus.UNIMPLEMENTED))
          {
             divClass = "skip";
-         } 
+         }
          else
          {
             divClass = "pass";
          }
-      } 
+      }
       else
       {
          divClass = "untestable";
@@ -952,7 +967,7 @@ public class CoverageReport
                sb.append(".");
                sb.append(ref.getMethodName());
                sb.append("()");
-               
+
                boolean appendLinkPipe = false;
 
                if (fisheyeBaseUrl != null)
@@ -982,7 +997,7 @@ public class CoverageReport
                   sb.append(".java");
                   sb.append("\">svn</a>");
                }
-               
+
                if (githubBaseUrl != null)
                {
             	  if (appendLinkPipe)
@@ -1003,13 +1018,13 @@ public class CoverageReport
          }
 
          sb.append("    </div>\n");
-      } 
+      }
       else if (!coverage.isEmpty())
       {
          sb.append("<b>A test exists for this untestable assertion!</b>");
       }
 
-      sb.append("</div></div>\n");      
+      sb.append("</div></div>\n");
    }
 
    private String parseBold(String text)
@@ -1110,12 +1125,12 @@ public class CoverageReport
 
       out.write(sb.toString().getBytes());
    }
-   
+
    private void writeUnversioned(OutputStream out) throws IOException
    {
       if (unversioned.isEmpty())
          return;
-      
+
       // Classname:version
       Map<String,String> classes = new HashMap<String,String>();
       for (SpecReference ref : unversioned)
@@ -1154,19 +1169,19 @@ public class CoverageReport
 
       sb.append("</table>");
 
-      out.write(sb.toString().getBytes());            
+      out.write(sb.toString().getBytes());
    }
-   
+
    private void writeTestGroupSummary(OutputStream out) throws IOException
    {
       if (summaryTestGroups == null || summaryTestGroups.isEmpty()) return;
-      
+
       StringBuilder sb = new StringBuilder();
-      
+
       sb.append("<h3 id=\"groupsummary\">Highlighted test groups</h3>\n");
       sb.append("<table border=\"1\" cellspacing=\"0\" cellpadding=\"0\">\n");
       sb.append("  <tr><th>Test Class</th><th>Test method</th></tr>\n");
-      
+
       for (String group : summaryTestGroups.keySet())
       {
          sb.append("<tr><td colspan=\"2\">");
@@ -1175,22 +1190,22 @@ public class CoverageReport
          sb.append(" (").append(summaryTestGroups.get(group).size()).append(")");
          sb.append("</div>");
          sb.append("</td></tr>");
-         
+
          summaryTestGroups.get(group);
-         
+
          for (Method ref : summaryTestGroups.get(group))
          {
             sb.append("<tr><td>");
             sb.append("<div class=\"packageName\">");
             sb.append(ref.getPackageName());
-            sb.append("</div>");            
+            sb.append("</div>");
             sb.append(ref.getClassName());
             sb.append("</td><td>");
-            sb.append(ref.getMethodName());            
+            sb.append(ref.getMethodName());
             sb.append("()</td></tr>");
          }
       }
-      
+
       sb.append("</table>");
       out.write(sb.toString().getBytes());
    }

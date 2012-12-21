@@ -1,0 +1,128 @@
+<specification xmlns="http://jboss.com/products/weld/tck/audit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jboss.com/products/weld/tck/audit /Users/pmuir/workspace/jboss-test-audit/api/src/main/resources/tck-audit.xsd" name="JSR 346: Contexts and Dependency Injection for Java EE 1.1" id="cdi" version="20091101" generateSectionClass="true" generateSectionIds="true">
+
+    <section id="architecture" title="Architecture" level="1" />
+    
+    <section id="concepts" title="Concepts" level="1">
+
+        <assertion id="a">
+            <text>A bean comprises of a (nonempty) set of bean types.</text>
+        </assertion>
+
+        <assertion id="b">
+            <text>A bean comprises of a (nonempty) set of qualifiers.</text>
+        </assertion>
+
+        <assertion id="c">
+            <text>A bean comprises of a scope.</text>
+        </assertion>
+
+        <assertion id="e">
+            <text>A bean comprises of an optional bean EL name.</text>
+        </assertion>
+
+        <assertion id="f">
+            <text>A bean comprises of a set of interceptor bindings.</text>
+            <note>This may only be tested indirectly</note>
+        </assertion>
+
+        <assertion id="g">
+            <text>A bean comprises of a bean implementation.</text>
+        </assertion>
+
+        <assertion id="h" testable="false">
+            <text>A bean may or may not be an alternative.</text>
+        </assertion>
+    </section>
+
+    <section id="capabilities" title="Functionality provided by the container to the bean" level="2">
+    </section>
+
+    <section id="bean_types" title="Bean types" level="2">
+
+        <assertion id="a">
+            <text>A bean may have multiple bean types.</text>
+        </assertion>
+
+        <assertion id="l">
+            <text>All beans have the bean type |java.lang.Object|.</text>
+        </assertion>
+
+    </section>
+
+    <section id="legal_bean_types" title="Legal bean types" level="3">
+        <assertion id="a">
+            <text>A bean type may be an interface.</text>
+        </assertion>
+
+        <assertion id="b">
+            <text>A bean type may be a concrete class.</text>
+        </assertion>
+
+        <assertion id="c">
+            <text>A bean type may be an abstract class.</text>
+        </assertion>
+
+        <assertion id="d">
+            <text>A bean type may be declared final.</text>
+        </assertion>
+
+        <assertion id="e">
+            <text>A bean type may have final methods.</text>
+        </assertion>
+
+        <assertion id="f">
+            <text>A bean type may be a parameterized type with actual type parameters.</text>
+        </assertion>
+
+        <assertion id="g">
+            <text>A bean type may be a parameterized type with type variables.</text>
+        </assertion>
+
+        <assertion id="i">
+            <text>A bean type may be an array type. Two array types are considered identical only if the element type is identical.</text>
+        </assertion>
+
+        <assertion id="j">
+            <text>A bean type may be a primitive type. Primitive types are considered to be identical to their corresponding wrapper types in |java.lang|.</text>
+        </assertion>
+
+        <assertion id="k">
+            <text>A bean type may be a raw type.</text>
+        </assertion>
+
+        <assertion id="la">
+            <text>A type variable is not a legal bean type.</text>
+        </assertion>
+
+        <assertion id="lb">
+            <text>A parameterized type that contains a wildcard type parameter is not a legal bean type.</text>
+        </assertion>
+    </section>
+
+    <section id="implementation" title="Programming model" level="1" />
+
+    <section id="managed_beans" title="Managed beans" level="2">
+
+        <assertion id="a">
+            <text>If the bean class of a managed bean is annotated with both the |@Interceptor| and |@Decorator| stereotypes, the container automatically detects the problem and treats it as a definition error.</text>
+        </assertion>
+
+        <group>
+            <text>If a managed bean has a non-static public field, it must have scope |@Dependent|. If a managed bean with a non-static public field declares any scope other than |@Dependent|, the container automatically detects the problem and treats it as a definition error.</text>
+            <assertion id="fa">
+                <text>Check a dependent scoped bean with a public field.</text>
+            </assertion>
+            <assertion id="fb">
+                <text>Check a managed bean with a static public field which declares any scope other than |@Dependent|.</text>
+            </assertion>
+            <assertion id="fc">
+                <text>If a managed bean with a non-static public field declares any scope other than |@Dependent|, the container automatically detects the problem and treats it as a definition error.</text>
+            </assertion>
+        </group>
+
+        <assertion id="g">
+            <text>If the managed bean class is a generic type, it must have scope |@Dependent|. If a managed bean with a parameterized bean class declares any scope other than |@Dependent|, the container automatically detects the problem and treats it as a definition error.</text>
+        </assertion>
+    </section>
+    
+</specification>

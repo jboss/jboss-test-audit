@@ -27,6 +27,8 @@ import javax.lang.model.element.TypeElement;
 import org.jboss.test.audit.annotations.SpecAssertion;
 import org.jboss.test.audit.annotations.SpecAssertions;
 import org.jboss.test.audit.annotations.SpecVersion;
+import org.jboss.test.audit.config.RuntimeProperties;
+import org.jboss.test.audit.generate.SectionsClassGenerator;
 
 /**
  * Annotation processor for generating TCK coverage report
@@ -40,25 +42,31 @@ import org.jboss.test.audit.annotations.SpecVersion;
 })
 @SupportedSourceVersion(RELEASE_6)
 public class CoverageProcessor extends AbstractProcessor {
-    private static final String OUTDIR_OPTION_FLAG = "outputDir";
+
+	private static final String GENERATED_SOURCE_PACKAGE_OPTION_FLAG = "generatedSourcesPackage";
+	private static final String GENERATED_SOURCE_OUTDIR_OPTION_FLAG = "generatedSourcesOutputDir";
+	private static final String OUTDIR_OPTION_FLAG = "outputDir";
     private static final String AUDITFILE_OPTION_KEY = "auditXml";
 
     private static final String DEFAULT_AUDIT_FILE_NAME = "test-audit.xml";
+
+    private RuntimeProperties properties = new RuntimeProperties();
 
     private final Map<String,List<SpecReference>> references = new HashMap<String,List<SpecReference>>();
 
     private Map<String,AuditParser> auditParsers;
 
     private File baseDir;
+    private File generatedSourcesOutputDir;
 
     public CoverageProcessor() {
     }
 
     public void init(ProcessingEnvironment env) {
         super.init(env);
-        
-        createOutputDir();
-        
+
+        createOutputDirs();
+
         File[] auditFiles = getAuditFiles();
         auditParsers = new HashMap<String,AuditParser>();
 
@@ -68,17 +76,26 @@ public class CoverageProcessor extends AbstractProcessor {
 
            if (in == null) {
                return;
-           }           
-           
+           }
+
+           AuditParser auditParser = null;
+
            try {
-               AuditParser auditParser = new AuditParser(in);
+               auditParser = new AuditParser(in, properties);
                auditParser.parse();
-               
                auditParsers.put(auditParser.getSpecId(), auditParser);
            }
            catch (Exception e) {
               e.printStackTrace();
                throw new RuntimeException("Unable to parse audit file.", e);
+           }
+
+           if(auditParser.isGenerateSectionClass()) {
+        	   try {
+        		   new SectionsClassGenerator().generateToFile(generatedSourcesOutputDir, getAuditFileInputStream(f), env.getOptions().get(GENERATED_SOURCE_PACKAGE_OPTION_FLAG));
+        	   } catch (Exception e) {
+        		   throw new RuntimeException("Unable to generate class with section constants.", e);
+			}
            }
         }
     }
@@ -95,12 +112,12 @@ public class CoverageProcessor extends AbstractProcessor {
         }
         return in;
     }
-    
+
     private File[] getAuditFiles()
     {
        String auditFileNames = processingEnv.getOptions().get(AUDITFILE_OPTION_KEY);
-       
-       if (auditFileNames == null || auditFileNames.length() == 0) 
+
+       if (auditFileNames == null || auditFileNames.length() == 0)
        {
           auditFileNames = getCurrentWorkingDirectory() + DEFAULT_AUDIT_FILE_NAME;
            System.out.println(
@@ -112,24 +129,24 @@ public class CoverageProcessor extends AbstractProcessor {
           System.out.println(
              "Reading spec assertions from audit file/s: " + auditFileNames);
        }
-       
+
        String[] parts = auditFileNames.split(",");
-       
+
        File[] files = new File[parts.length];
-       
+
        for (int i = 0; i < parts.length; i++)
        {
           files[i] = new File(parts[i]);
-       }       
-       
+       }
+
        return files;
     }
-    
+
     private File getImagesDir() {
        return new File(getAuditFiles()[0].getParentFile(), "/images");
     }
 
-    private void createOutputDir() {
+    private void createOutputDirs() {
         String baseDirName = processingEnv.getOptions().get(OUTDIR_OPTION_FLAG);
 
         // I would like to get the baseDir as property, but it seems that the maven compiler plugin still has issues - http://jira.codehaus.org/browse/MCOMPILER-75
@@ -148,6 +165,13 @@ public class CoverageProcessor extends AbstractProcessor {
 
         baseDir = new File(baseDirName);
         baseDir.mkdirs();
+
+        // Generated source dir
+        String sectionsOutputDirName = processingEnv.getOptions().get(GENERATED_SOURCE_OUTDIR_OPTION_FLAG);
+        if(sectionsOutputDirName != null) {
+        	generatedSourcesOutputDir = new File(sectionsOutputDirName);
+        	generatedSourcesOutputDir.mkdirs();
+        }
     }
 
     private String getCurrentWorkingDirectory() {
@@ -164,19 +188,16 @@ public class CoverageProcessor extends AbstractProcessor {
             processAnnotatedMethods(roundEnvironment, type);
         }
 
-        for (AuditParser auditParser : auditParsers.values())
-        {
-           if (roundEnvironment.processingOver()) {
-               try
-               {
-                  new CoverageReport(references.get(auditParser.getSpecId()) , 
-                        auditParser, getImagesDir()).generate(baseDir);
-               } 
-               catch (IOException e)
-               {
-                  throw new RuntimeException(e);
-               }
-           }
+		if (roundEnvironment.processingOver()) {
+			for (AuditParser auditParser : auditParsers.values()) {
+				try {
+					new CoverageReport(references.get(auditParser.getSpecId()),
+							auditParser, getImagesDir(), properties)
+							.generateToOutputDir(baseDir);
+				} catch (IOException e) {
+					throw new RuntimeException(e);
+				}
+			}
         }
         return false;
     }
@@ -206,31 +227,31 @@ public class CoverageProcessor extends AbstractProcessor {
         }
     }
 
-    private void createSpecReference(ExecutableElement methodElement, 
+    private void createSpecReference(ExecutableElement methodElement,
           Map<? extends ExecutableElement, ? extends AnnotationValue> annotationParameters) {
-       
+
         SpecReference ref = new SpecReference();
-        
+
         PackageElement packageElement = getEnclosingPackageElement(methodElement);
         ref.setPackageName(packageElement.getQualifiedName().toString());
         ref.setClassName(methodElement.getEnclosingElement().getSimpleName().toString());
         ref.setMethodName(methodElement.getSimpleName().toString());
-        
+
         if (methodElement.getEnclosingElement().getAnnotation(SpecVersion.class) != null)
         {
            ref.setSpecId(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).spec());
            ref.setSpecVersion(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).version());
         }
-        
+
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationParameters.entrySet()) {
             final String elementKey = entry.getKey().toString();
-            
+
             if (elementKey.equals("section()")) {
                 ref.setSection((String) entry.getValue().getValue());
             } else if (elementKey.equals("id()")) {
                 ref.setAssertion((String) entry.getValue().getValue());
             }
-        }                        
+        }
         for (AnnotationMirror annotationMirror : processingEnv.getElementUtils().getAllAnnotationMirrors(methodElement))
         {
            if (annotationMirror.getAnnotationType().toString().equals("org.testng.annotations.Test"))
@@ -239,7 +260,7 @@ public class CoverageProcessor extends AbstractProcessor {
                  processingEnv.getElementUtils().getElementValuesWithDefaults(annotationMirror);
               for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : testAnnotationParameters.entrySet()) {
                  final String elementKey = entry.getKey().toString();
-                 
+
                  if (elementKey.equals("groups()")) {
                      for (AnnotationValue annotationValue : (List<? extends AnnotationValue>) entry.getValue().getValue())
                      {
@@ -249,26 +270,26 @@ public class CoverageProcessor extends AbstractProcessor {
              }
            }
         }
-        
+
         List<SpecReference> refs = references.get(ref.getSpecId());
         if (refs == null)
         {
            refs = new ArrayList<SpecReference>();
            references.put(ref.getSpecId(), refs);
         }
-        
+
         refs.add(ref);
-    }    
-    
+    }
+
     private PackageElement getEnclosingPackageElement(ExecutableElement methodElement) {
        Element classElement = methodElement.getEnclosingElement();
-       
+
        Element enclosingElement = classElement.getEnclosingElement();
-       
+
        while (!(enclosingElement instanceof PackageElement) && enclosingElement != null) {
           enclosingElement = enclosingElement.getEnclosingElement();
        }
-       
+
        return (PackageElement) enclosingElement;
     }
 }
