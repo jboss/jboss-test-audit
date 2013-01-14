@@ -1215,6 +1215,10 @@ public class CoverageReport
    {
       List<SpecReference> refs = new ArrayList<SpecReference>();
 
+      if(auditParser.hasSectionIdsGenerated()) {
+    	  sectionId = auditParser.getSectionOriginalId(sectionId);
+      }
+
       if (references.containsKey(sectionId))
       {
          for (SpecReference ref : references.get(sectionId))
