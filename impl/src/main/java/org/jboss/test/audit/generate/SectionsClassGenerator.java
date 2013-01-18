@@ -21,8 +21,14 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Writer;
 import java.net.URISyntaxException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
+import javax.annotation.Generated;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.tools.JavaFileObject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -77,6 +83,18 @@ public class SectionsClassGenerator {
 		source.append(specId);
 		source.append(";");
 		source.append(NEW_LINE);
+
+		// Generator info
+		source.append("@");
+		source.append(Generated.class.getName());
+		source.append("(value=\"");
+		source.append(this.getClass().getName());
+		source.append("\", date=\"");
+		source.append(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZZ")
+				.format(new Date()));
+		source.append("\")");
+		source.append(NEW_LINE);
+
 		source.append("public final class ");
 		source.append(SOURCE_CLASS_NAME);
 		source.append(" {");
@@ -162,6 +180,34 @@ public class SectionsClassGenerator {
 				generatedSource.getSimpleName() + ".java"));
 		writer.write(generatedSource.getValue());
 		writer.close();
+	}
+
+	/**
+	 *
+	 * @param javaFileObject
+	 * @param auditFile
+	 * @param packageBase
+	 * @throws SAXException
+	 * @throws IOException
+	 * @throws ParserConfigurationException
+	 */
+	public void generateToJavaFileObject(ProcessingEnvironment env,
+			InputStream auditFile, String packageBase) throws SAXException,
+			IOException, ParserConfigurationException {
+
+		GeneratedSource generatedSource = generateSource(auditFile, packageBase);
+
+		JavaFileObject javaFileObject = env.getFiler().createSourceFile(
+				generatedSource.getName());
+		Writer writer = javaFileObject.openWriter();
+		writer.write(generatedSource.getValue());
+		writer.close();
+
+		System.out.println("Section class source generated: "
+				+ generatedSource.getName());
+		// MCOMPILER-66
+		// env.getMessager().printMessage(Kind.NOTE,
+		// "Section class source generated: "+generatedSource.getName());
 	}
 
 	public static String packageNameToPath(String packageName) {

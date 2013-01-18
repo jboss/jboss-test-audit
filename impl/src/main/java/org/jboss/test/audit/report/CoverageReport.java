@@ -189,6 +189,8 @@ public class CoverageReport
     */
    public void generateToOutputDir(File outputDir) throws IOException {
 
+	  System.out.println("Generate coverage report: "+auditParser.getName());
+
 	  File coverageFile = new File(outputDir, String.format(REPORT_FILE_NAME, auditParser.getSpecId()));
 	  FileOutputStream out = new FileOutputStream(coverageFile);
 

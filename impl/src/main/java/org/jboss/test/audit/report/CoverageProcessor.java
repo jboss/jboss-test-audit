@@ -92,7 +92,12 @@ public class CoverageProcessor extends AbstractProcessor {
 
            if(auditParser.isGenerateSectionClass()) {
         	   try {
-        		   new SectionsClassGenerator().generateToFile(generatedSourcesOutputDir, getAuditFileInputStream(f), env.getOptions().get(GENERATED_SOURCE_PACKAGE_OPTION_FLAG));
+        		   SectionsClassGenerator sectionsClassGenerator = new SectionsClassGenerator();
+        		   if(generatedSourcesOutputDir != null) {
+        			   sectionsClassGenerator.generateToFile(generatedSourcesOutputDir, getAuditFileInputStream(f), env.getOptions().get(GENERATED_SOURCE_PACKAGE_OPTION_FLAG));
+        		   } else {
+        			   sectionsClassGenerator.generateToJavaFileObject(env, getAuditFileInputStream(f), env.getOptions().get(GENERATED_SOURCE_PACKAGE_OPTION_FLAG));
+        		   }
         	   } catch (Exception e) {
         		   throw new RuntimeException("Unable to generate class with section constants.", e);
 			}
