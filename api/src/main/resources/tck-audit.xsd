@@ -22,11 +22,6 @@
          <xs:documentation>If true the section id will be generated (similar to automatic numbering of headers)</xs:documentation>
         </xs:annotation>
       </xs:attribute>
-      <xs:attribute name="generateSectionClass" type="xs:boolean" default="false">
-        <xs:annotation>
-         <xs:documentation>If true a helper class with section contants will be generated</xs:documentation>
-        </xs:annotation>
-      </xs:attribute>
     </xs:complexType>
   </xs:element>           
   

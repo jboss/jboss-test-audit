@@ -28,7 +28,6 @@ import org.jboss.test.audit.annotations.SpecAssertion;
 import org.jboss.test.audit.annotations.SpecAssertions;
 import org.jboss.test.audit.annotations.SpecVersion;
 import org.jboss.test.audit.config.RuntimeProperties;
-import org.jboss.test.audit.generate.SectionsClassGenerator;
 
 /**
  * Annotation processor for generating TCK coverage report
@@ -43,8 +42,6 @@ import org.jboss.test.audit.generate.SectionsClassGenerator;
 @SupportedSourceVersion(RELEASE_6)
 public class CoverageProcessor extends AbstractProcessor {
 
-	private static final String GENERATED_SOURCE_PACKAGE_OPTION_FLAG = "generatedSourcesPackage";
-	private static final String GENERATED_SOURCE_OUTDIR_OPTION_FLAG = "generatedSourcesOutputDir";
 	private static final String OUTDIR_OPTION_FLAG = "outputDir";
     private static final String AUDITFILE_OPTION_KEY = "auditXml";
 
@@ -57,7 +54,6 @@ public class CoverageProcessor extends AbstractProcessor {
     private Map<String,AuditParser> auditParsers;
 
     private File baseDir;
-    private File generatedSourcesOutputDir;
 
     public CoverageProcessor() {
     }
@@ -88,19 +84,6 @@ public class CoverageProcessor extends AbstractProcessor {
            catch (Exception e) {
               e.printStackTrace();
                throw new RuntimeException("Unable to parse audit file.", e);
-           }
-
-           if(auditParser.isGenerateSectionClass()) {
-        	   try {
-        		   SectionsClassGenerator sectionsClassGenerator = new SectionsClassGenerator();
-        		   if(generatedSourcesOutputDir != null) {
-        			   sectionsClassGenerator.generateToFile(generatedSourcesOutputDir, getAuditFileInputStream(f), env.getOptions().get(GENERATED_SOURCE_PACKAGE_OPTION_FLAG));
-        		   } else {
-        			   sectionsClassGenerator.generateToJavaFileObject(env, getAuditFileInputStream(f), env.getOptions().get(GENERATED_SOURCE_PACKAGE_OPTION_FLAG));
-        		   }
-        	   } catch (Exception e) {
-        		   throw new RuntimeException("Unable to generate class with section constants.", e);
-			}
            }
         }
     }
@@ -170,13 +153,6 @@ public class CoverageProcessor extends AbstractProcessor {
 
         baseDir = new File(baseDirName);
         baseDir.mkdirs();
-
-        // Generated source dir
-        String sectionsOutputDirName = processingEnv.getOptions().get(GENERATED_SOURCE_OUTDIR_OPTION_FLAG);
-        if(sectionsOutputDirName != null) {
-        	generatedSourcesOutputDir = new File(sectionsOutputDirName);
-        	generatedSourcesOutputDir.mkdirs();
-        }
     }
 
     private String getCurrentWorkingDirectory() {

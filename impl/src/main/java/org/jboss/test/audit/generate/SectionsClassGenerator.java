@@ -18,17 +18,15 @@
 package org.jboss.test.audit.generate;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.Writer;
 import java.net.URISyntaxException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.annotation.Generated;
-import javax.annotation.processing.ProcessingEnvironment;
-import javax.tools.JavaFileObject;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -39,7 +37,11 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
- * Generates source code of a section constants container class.
+ * Generates the source code (naive way) of a section constants container class.
+ *
+ * The original intention was to generate the source code during annotation
+ * processing. However due to various problems this class should be called
+ * separately (probably using exec-maven-plugin).
  *
  * @author Martin Kouba
  */
@@ -55,6 +57,30 @@ public class SectionsClassGenerator {
 
 	private static final String FILE_SEPARATOR = System
 			.getProperty("file.separator");
+
+	/**
+	 * @param args
+	 */
+	public static void main(String[] args) {
+
+		if (args.length != 3) {
+			throw new IllegalArgumentException();
+		}
+
+		String auditFilePath = args[0];
+		String packageBase = args[1];
+		String outputDirPath = args[2];
+
+		SectionsClassGenerator generator = new SectionsClassGenerator();
+
+		try {
+			generator.generateToFile(new File(outputDirPath),
+					new FileInputStream(new File(auditFilePath)), packageBase);
+		} catch (Exception e) {
+			throw new RuntimeException(
+					"Unable to generate class with section constants.", e);
+		}
+	}
 
 	/**
 	 *
@@ -140,20 +166,12 @@ public class SectionsClassGenerator {
 		}
 		source.append("}");
 
-		return new GeneratedSource(source.toString(), packageBase
-				+ PACKAGE_SEPARATOR + specId, SOURCE_CLASS_NAME);
-	}
-
-	private String normalize(String id) {
-
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < id.length(); i++) {
-			char tmpChar = id.charAt(i);
-			if (Character.isLetterOrDigit(tmpChar) || tmpChar == '_') {
-				result.append(tmpChar);
-			}
-		}
-		return result.toString().toUpperCase();
+		GeneratedSource generatedSource = new GeneratedSource(
+				source.toString(), packageBase + PACKAGE_SEPARATOR + specId,
+				SOURCE_CLASS_NAME);
+		System.out.println("Section class source generated: "
+				+ generatedSource.getName());
+		return generatedSource;
 	}
 
 	/**
@@ -180,34 +198,6 @@ public class SectionsClassGenerator {
 				generatedSource.getSimpleName() + ".java"));
 		writer.write(generatedSource.getValue());
 		writer.close();
-	}
-
-	/**
-	 *
-	 * @param javaFileObject
-	 * @param auditFile
-	 * @param packageBase
-	 * @throws SAXException
-	 * @throws IOException
-	 * @throws ParserConfigurationException
-	 */
-	public void generateToJavaFileObject(ProcessingEnvironment env,
-			InputStream auditFile, String packageBase) throws SAXException,
-			IOException, ParserConfigurationException {
-
-		GeneratedSource generatedSource = generateSource(auditFile, packageBase);
-
-		JavaFileObject javaFileObject = env.getFiler().createSourceFile(
-				generatedSource.getName());
-		Writer writer = javaFileObject.openWriter();
-		writer.write(generatedSource.getValue());
-		writer.close();
-
-		System.out.println("Section class source generated: "
-				+ generatedSource.getName());
-		// MCOMPILER-66
-		// env.getMessager().printMessage(Kind.NOTE,
-		// "Section class source generated: "+generatedSource.getName());
 	}
 
 	public static String packageNameToPath(String packageName) {
@@ -246,6 +236,18 @@ public class SectionsClassGenerator {
 			return className;
 		}
 
+	}
+
+	private String normalize(String id) {
+
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < id.length(); i++) {
+			char tmpChar = id.charAt(i);
+			if (Character.isLetterOrDigit(tmpChar) || tmpChar == '_') {
+				result.append(tmpChar);
+			}
+		}
+		return result.toString().toUpperCase();
 	}
 
 }

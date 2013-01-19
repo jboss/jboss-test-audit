@@ -31,7 +31,6 @@ public class AuditParser
    private String name;
    private String specId;
    private String version;
-   private boolean generateSectionClass;
 
    private Map<String,List<SectionItem>> sectionItems = new HashMap<String,List<SectionItem>>();
 
@@ -59,13 +58,6 @@ public class AuditParser
    public String getVersion()
    {
       return version;
-   }
-
-   /**
-    * @return <code>true</code> if a class with section contants will be generated, <code>false</code> otherwise
-    */
-   public boolean isGenerateSectionClass() {
-	   return generateSectionClass;
    }
 
    public String getSectionTitle(String sectionId)
@@ -174,7 +166,6 @@ public class AuditParser
       name = doc.getDocumentElement().getAttribute("name");
       specId = doc.getDocumentElement().getAttribute("id");
       version = doc.getDocumentElement().getAttribute("version");
-      generateSectionClass = Boolean.parseBoolean(doc.getDocumentElement().getAttribute("generateSectionClass"));
 
       if(Boolean.parseBoolean(doc.getDocumentElement().getAttribute("generateSectionIds"))) {
     	  sectionIdGenerator = new SectionIdGenerator();
