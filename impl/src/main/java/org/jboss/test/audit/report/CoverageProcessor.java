@@ -16,6 +16,7 @@ import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
 import javax.annotation.processing.SupportedAnnotationTypes;
+import javax.annotation.processing.SupportedOptions;
 import javax.annotation.processing.SupportedSourceVersion;
 import javax.lang.model.element.AnnotationMirror;
 import javax.lang.model.element.AnnotationValue;
@@ -40,14 +41,16 @@ import org.jboss.test.audit.config.RuntimeProperties;
         "org.jboss.test.audit.annotations.SpecAssertions"
 })
 @SupportedSourceVersion(RELEASE_6)
+@SupportedOptions({CoverageProcessor.OUTDIR_OPTION_FLAG, CoverageProcessor.AUDITFILE_OPTION_KEY})
 public class CoverageProcessor extends AbstractProcessor {
 
-	private static final String OUTDIR_OPTION_FLAG = "outputDir";
-    private static final String AUDITFILE_OPTION_KEY = "auditXml";
+    protected static final String OUTDIR_OPTION_FLAG = "outputDir";
+
+    protected static final String AUDITFILE_OPTION_KEY = "auditXml";
 
     private static final String DEFAULT_AUDIT_FILE_NAME = "test-audit.xml";
 
-    private RuntimeProperties properties = new RuntimeProperties();
+    private final RuntimeProperties properties = new RuntimeProperties();
 
     private final Map<String,List<SpecReference>> references = new HashMap<String,List<SpecReference>>();
 
@@ -58,6 +61,7 @@ public class CoverageProcessor extends AbstractProcessor {
     public CoverageProcessor() {
     }
 
+    @Override
     public void init(ProcessingEnvironment env) {
         super.init(env);
 
@@ -159,6 +163,7 @@ public class CoverageProcessor extends AbstractProcessor {
         return System.getProperty("user.dir") + System.getProperty("file.separator");
     }
 
+    @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnvironment) {
 
         if (auditParsers.isEmpty()) {
