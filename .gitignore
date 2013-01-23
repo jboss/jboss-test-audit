@@ -5,6 +5,7 @@
 */build
 /bin
 */bin
+*/test-output
 
 # IntelliJ specific files/directories
 /out
