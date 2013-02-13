@@ -34,7 +34,9 @@ public class AuditParserTest {
 
 	@Test
 	public void testParserWithSectionIdGenerator() throws Exception {
-		AuditParser parser = new AuditParser(this.getClass().getResourceAsStream("/tck-audit-coverage-report.xml"), new RuntimeProperties()).parse();
+		AuditParser parser = new AuditParser(this.getClass()
+				.getResourceAsStream("/tck-audit-coverage-report.xml"),
+				new RuntimeProperties()).parse();
 		List<String> sectionIds = new ArrayList<String>();
 		sectionIds.add("1");
 		sectionIds.add("2");
@@ -43,9 +45,18 @@ public class AuditParserTest {
 		assertEquals(sectionIds, parser.getSectionIds());
 	}
 
+	@Test(expected = IllegalStateException.class)
+	public void testInvalidAuditXml() throws Exception {
+		new AuditParser(this.getClass().getResourceAsStream(
+				"/tck-audit-coverage-report-invalid.xml"),
+				new RuntimeProperties()).parse();
+	}
+
 	@Test
 	public void testHasAssertion() throws Exception {
-		AuditParser parser = new AuditParser(this.getClass().getResourceAsStream("/tck-audit-coverage-report.xml"), new RuntimeProperties()).parse();
+		AuditParser parser = new AuditParser(this.getClass()
+				.getResourceAsStream("/tck-audit-coverage-report.xml"),
+				new RuntimeProperties()).parse();
 		assertTrue(parser.hasAssertion("concepts", "a"));
 	}
 

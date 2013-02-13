@@ -36,12 +36,31 @@ public class CoverageReportTest {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		report.generate(out);
 		String html = out.toString("utf-8");
-		System.out.print(html);
+		//System.out.print(html);
 
 		assertTrue(html
 				.contains("<h4 class=\"sectionHeader\" id=\"2\">Section 2 - Concepts <sup>[concepts]</sup></h4>"));
 		assertTrue(html
 				.contains("<h4 class=\"sectionHeader\" id=\"2.2\">Section 2.2 - Bean types <sup>[bean_types]</sup></h4>"));
+	}
+
+	@Test
+	public void testSectionIdHeaders() throws Exception {
+
+		RuntimeProperties properties = new RuntimeProperties();
+		CoverageReport report = new CoverageReport(null, new AuditParser(this
+				.getClass().getResourceAsStream("/tck-audit-coverage-report-old.xml"),
+				properties).parse(), null, properties);
+
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		report.generate(out);
+		String html = out.toString("utf-8");
+		//System.out.print(html);
+
+		assertTrue(html
+				.contains("<h4 class=\"sectionHeader\" id=\"2\">Section 2 - Concepts</h4>"));
+		assertTrue(html
+				.contains("<h4 class=\"sectionHeader\" id=\"2.2\">Section 2.2 - Bean types</h4>"));
 	}
 
 }

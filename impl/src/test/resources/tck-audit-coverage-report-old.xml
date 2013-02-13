@@ -1,0 +1,52 @@
+<specification xmlns="http://jboss.com/products/weld/tck/audit" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jboss.com/products/weld/tck/audit /Users/pmuir/workspace/jboss-test-audit/api/src/main/resources/tck-audit.xsd" name="JSR 346: Contexts and Dependency Injection for Java EE 1.1" id="cdi" version="20091101">
+
+    <section id="1" title="Architecture"/>
+
+    <section id="2" title="Concepts">
+
+        <assertion id="a">
+            <text>A bean comprises of a (nonempty) set of bean types.</text>
+        </assertion>
+
+        <assertion id="b">
+            <text>A bean comprises of a (nonempty) set of qualifiers.</text>
+        </assertion>
+
+        <assertion id="c">
+            <text>A bean comprises of a scope.</text>
+        </assertion>
+
+        <assertion id="e">
+            <text>A bean comprises of an optional bean EL name.</text>
+        </assertion>
+
+        <assertion id="f">
+            <text>A bean comprises of a set of interceptor bindings.</text>
+            <note>This may only be tested indirectly</note>
+        </assertion>
+
+        <assertion id="g">
+            <text>A bean comprises of a bean implementation.</text>
+        </assertion>
+
+        <assertion id="h" testable="false">
+            <text>A bean may or may not be an alternative.</text>
+        </assertion>
+    </section>
+
+    <section id="2.1" title="Functionality provided by the container to the bean">
+    </section>
+
+    <section id="2.2" title="Bean types">
+
+        <assertion id="a">
+            <text>A bean may have multiple bean types.</text>
+        </assertion>
+
+        <assertion id="l">
+            <text>All beans have the bean type |java.lang.Object|.</text>
+        </assertion>
+
+    </section>
+
+</specification>
