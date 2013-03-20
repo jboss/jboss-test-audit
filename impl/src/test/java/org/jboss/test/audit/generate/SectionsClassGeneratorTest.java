@@ -17,6 +17,7 @@
 
 package org.jboss.test.audit.generate;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -41,11 +42,15 @@ import org.junit.Test;
  */
 public class SectionsClassGeneratorTest {
 
+	private static final String FILE_SEPARATOR = System
+			.getProperty("file.separator");
+
 	@Test
 	public void testGenerateSource() throws Exception {
 
-		String source = new SectionsClassGenerator().generateSource(this.getClass()
-				.getResourceAsStream("/tck-audit-section-class-generator.xml"),
+		String source = new SectionsClassGenerator().generateSource(
+				this.getClass().getResourceAsStream(
+						"/tck-audit-section-class-generator.xml"),
 				"org.jboss.cdi.tck.cdi").getValue();
 		// System.out.print(source);
 		assertTrue(source.contains("1 Architecture"));
@@ -63,16 +68,32 @@ public class SectionsClassGeneratorTest {
 		String packageBase = "org.jboss.cdi.tck.audit";
 		String specId = "cdi";
 
-		File outDir = new File("target"+System.getProperty("file.separator")+"generated-sources");
+		File outDir = new File("target" + FILE_SEPARATOR + "generated-sources");
 		outDir.mkdirs();
 
-		new SectionsClassGenerator().generateToFile(outDir,this.getClass()
-				.getResourceAsStream("/tck-audit-section-class-generator.xml"),
-				packageBase);
+		SectionsClassGenerator generator = new SectionsClassGenerator();
+		generator.generateToFile(
+				outDir,
+				this.getClass().getResourceAsStream(
+						"/tck-audit-section-class-generator.xml"), packageBase);
 
-		File sourceFile = new File(outDir, SectionsClassGenerator.packageNameToPath(packageBase+"."+specId) +System.getProperty("file.separator")+ SectionsClassGenerator.SOURCE_CLASS_NAME + ".java");
+		File sourceFile = new File(outDir,
+				generator.packageNameToPath(packageBase + "." + specId)
+						+ FILE_SEPARATOR
+						+ SectionsClassGenerator.SOURCE_CLASS_NAME + ".java");
 		assertTrue(sourceFile.exists());
 		assertTrue(sourceFile.isFile());
+	}
+
+	@Test
+	public void testPackageNameToPath() {
+
+		SectionsClassGenerator generator = new SectionsClassGenerator();
+		generator.setFileSeparator("\\");
+		assertEquals(
+				"org\\jboss\\test\\audit\\generate\\SectionClassGenerator",
+				generator
+						.packageNameToPath("org.jboss.test.audit.generate.SectionClassGenerator"));
 	}
 
 	// Used only to test the limits of javac
@@ -94,13 +115,13 @@ public class SectionsClassGeneratorTest {
 		xml.append("</specification>");
 
 		byte[] bytes = xml.toString().getBytes();
-        InputStream in = new ByteArrayInputStream(bytes);
+		InputStream in = new ByteArrayInputStream(bytes);
 
-        String source = new SectionsClassGenerator().generateSource(in,
+		String source = new SectionsClassGenerator().generateSource(in,
 				"org.jboss.cdi.tck").getValue();
-    	//System.out.print(source);
+		// System.out.print(source);
 
-        JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+		JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
 		DiagnosticCollector<JavaFileObject> diagnosticsCollector = new DiagnosticCollector<JavaFileObject>();
 		JavaFileObject file = new JavaSourceFromString("Sections.java", source);
 

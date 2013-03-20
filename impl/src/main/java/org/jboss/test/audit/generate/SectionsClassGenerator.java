@@ -47,7 +47,7 @@ import org.xml.sax.SAXException;
  */
 public class SectionsClassGenerator {
 
-	public static final String SOURCE_CLASS_NAME = "Sections";
+	protected static final String SOURCE_CLASS_NAME = "Sections";
 
 	private static final String NEW_LINE = "\n";
 
@@ -55,8 +55,10 @@ public class SectionsClassGenerator {
 
 	private static final String PACKAGE_SEPARATOR = ".";
 
-	private static final String FILE_SEPARATOR = System
+	private static final String DEFAULT_FILE_SEPARATOR = System
 			.getProperty("file.separator");
+
+	private String fileSeparator = DEFAULT_FILE_SEPARATOR;
 
 	/**
 	 * @param args
@@ -200,8 +202,25 @@ public class SectionsClassGenerator {
 		writer.close();
 	}
 
-	public static String packageNameToPath(String packageName) {
-		return packageName.replaceAll("[.]", FILE_SEPARATOR);
+	public SectionsClassGenerator setFileSeparator(String fileSeparator) {
+		this.fileSeparator = fileSeparator;
+		return this;
+	}
+
+	protected String packageNameToPath(String packageName) {
+		return packageName.replace(".", fileSeparator);
+	}
+
+	private String normalize(String id) {
+
+		StringBuilder result = new StringBuilder();
+		for (int i = 0; i < id.length(); i++) {
+			char tmpChar = id.charAt(i);
+			if (Character.isLetterOrDigit(tmpChar) || tmpChar == '_') {
+				result.append(tmpChar);
+			}
+		}
+		return result.toString().toUpperCase();
 	}
 
 	public final class GeneratedSource {
@@ -236,18 +255,6 @@ public class SectionsClassGenerator {
 			return className;
 		}
 
-	}
-
-	private String normalize(String id) {
-
-		StringBuilder result = new StringBuilder();
-		for (int i = 0; i < id.length(); i++) {
-			char tmpChar = id.charAt(i);
-			if (Character.isLetterOrDigit(tmpChar) || tmpChar == '_') {
-				result.append(tmpChar);
-			}
-		}
-		return result.toString().toUpperCase();
 	}
 
 }
