@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.jboss.test-audit</groupId>
         <artifactId>jboss-test-audit-parent</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.1.CR1</version>
     </parent>
 
     <artifactId>jboss-test-audit-api</artifactId>
