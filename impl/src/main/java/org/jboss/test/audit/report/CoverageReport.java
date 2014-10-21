@@ -821,6 +821,9 @@ public class CoverageReport
 
             String originalSectionIdInfo = auditParser.hasSectionIdsGenerated() ? " <sup>["+auditParser.getSectionOriginalId(sectionId)+"]</sup>" : "";
 
+            // wrap each section to div element to create some "relation" between assertions and given section.
+            out.write(("<div id = \"" + auditParser.getSectionTitle(sectionId) + "\">").getBytes());
+
             out.write(("<h4 class=\"sectionHeader\" id=\"" + sectionId
                   + "\">Section " + sectionId + " - "
                   + escape(auditParser.getSectionTitle(sectionId)) + originalSectionIdInfo+ "</h4>\n")
@@ -839,6 +842,8 @@ public class CoverageReport
             }
 
             out.write(sb.toString().getBytes());
+
+            out.write(("</div>").getBytes());
          } else
          {
             // We still want to be able to jump to this section by clicking on
