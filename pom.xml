@@ -36,8 +36,7 @@
         <connection>scm:git:git://github.com/jboss/jboss-test-audit.git</connection>
         <developerConnection>scm:git:git@github.com:jboss/jboss-test-audit.git</developerConnection>
         <url>https://github.com/jboss/jboss-test-audit</url>
-      <tag>HEAD</tag>
-  </scm>
+    </scm>
 
     <developers>
         <developer>
