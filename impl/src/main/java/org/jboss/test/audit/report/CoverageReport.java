@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -968,7 +970,7 @@ public class CoverageReport
                   sb.append(currentPackageName);
                   sb.append("        </div>\n");
                }
-
+               sb.append("<div class=\"description\"> Test archive name: "+ getSha1OfTestClass(ref.getPackageName()+ "."+ref.getClassName()) +"</div>");
                sb.append("        <div class=\"coverageMethod\">");
                sb.append(ref.getClassName());
                sb.append(".");
@@ -1291,5 +1293,23 @@ public class CoverageReport
          if (outChannel != null)
             outChannel.close();
       }
+   }
+
+   private String getSha1OfTestClass(String fqn){
+      MessageDigest messageDigest = null;
+      try {
+         messageDigest = MessageDigest.getInstance("SHA-1");
+      } catch (NoSuchAlgorithmException e) {
+         return null;
+      }
+      messageDigest.update(fqn.getBytes());
+      byte[] digest = messageDigest.digest();
+
+      StringBuilder hexString = new StringBuilder();
+      for (int i = 0; i < digest.length; i++) {
+         hexString.append(Integer.toHexString(0xFF & digest[i]));
+      }
+      return hexString.toString();
+
    }
 }
