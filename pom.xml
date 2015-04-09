@@ -3,7 +3,7 @@
 
     <groupId>org.jboss.test-audit</groupId>
     <artifactId>jboss-test-audit-parent</artifactId>
-    <version>1.1.1.Final</version>
+    <version>1.1.2-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Test Audit Utils Parent</name>
 
@@ -36,7 +36,7 @@
         <connection>scm:git:git://github.com/jboss/jboss-test-audit.git</connection>
         <developerConnection>scm:git:git@github.com:jboss/jboss-test-audit.git</developerConnection>
         <url>https://github.com/jboss/jboss-test-audit</url>
-      <tag>1.1.1.Final</tag>
+      <tag>HEAD</tag>
   </scm>
 
     <developers>
