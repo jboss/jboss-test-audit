@@ -41,7 +41,7 @@ import org.jboss.test.audit.config.RuntimeProperties;
         "org.jboss.test.audit.annotations.SpecAssertions"
 })
 @SupportedSourceVersion(RELEASE_6)
-@SupportedOptions({CoverageProcessor.OUTDIR_OPTION_FLAG, CoverageProcessor.AUDITFILE_OPTION_KEY})
+@SupportedOptions({ CoverageProcessor.OUTDIR_OPTION_FLAG, CoverageProcessor.AUDITFILE_OPTION_KEY })
 public class CoverageProcessor extends AbstractProcessor {
 
     protected static final String OUTDIR_OPTION_FLAG = "outputDir";
@@ -52,9 +52,9 @@ public class CoverageProcessor extends AbstractProcessor {
 
     private final RuntimeProperties properties = new RuntimeProperties();
 
-    private final Map<String,List<SpecReference>> references = new HashMap<String,List<SpecReference>>();
+    private final Map<String, List<SpecReference>> references = new HashMap<String, List<SpecReference>>();
 
-    private Map<String,AuditParser> auditParsers;
+    private Map<String, AuditParser> auditParsers;
 
     private File baseDir;
 
@@ -68,27 +68,25 @@ public class CoverageProcessor extends AbstractProcessor {
         createOutputDirs();
 
         File[] auditFiles = getAuditFiles();
-        auditParsers = new HashMap<String,AuditParser>();
+        auditParsers = new HashMap<String, AuditParser>();
 
-        for (File f : auditFiles)
-        {
-           InputStream in = getAuditFileInputStream(f);
+        for (File f : auditFiles) {
+            InputStream in = getAuditFileInputStream(f);
 
-           if (in == null) {
-               return;
-           }
+            if (in == null) {
+                return;
+            }
 
-           AuditParser auditParser = null;
+            AuditParser auditParser = null;
 
-           try {
-               auditParser = new AuditParser(in, properties);
-               auditParser.parse();
-               auditParsers.put(auditParser.getSpecId(), auditParser);
-           }
-           catch (Exception e) {
-              e.printStackTrace();
-               throw new RuntimeException("Unable to parse audit file.", e);
-           }
+            try {
+                auditParser = new AuditParser(in, properties);
+                auditParser.parse();
+                auditParsers.put(auditParser.getSpecId(), auditParser);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException("Unable to parse audit file.", e);
+            }
         }
     }
 
@@ -96,46 +94,40 @@ public class CoverageProcessor extends AbstractProcessor {
         InputStream in;
         try {
             in = new FileInputStream(file);
-        }
-        catch (IOException ex) {
-           System.err.println("Unable to open audit file - " + file.getAbsolutePath());
-           System.err.println("No report generated");
-           return null;
+        } catch (IOException ex) {
+            System.err.println("Unable to open audit file - " + file.getAbsolutePath());
+            System.err.println("No report generated");
+            return null;
         }
         return in;
     }
 
-    private File[] getAuditFiles()
-    {
-       String auditFileNames = processingEnv.getOptions().get(AUDITFILE_OPTION_KEY);
+    private File[] getAuditFiles() {
+        String auditFileNames = processingEnv.getOptions().get(AUDITFILE_OPTION_KEY);
 
-       if (auditFileNames == null || auditFileNames.length() == 0)
-       {
-          auditFileNames = getCurrentWorkingDirectory() + DEFAULT_AUDIT_FILE_NAME;
-           System.out.println(
-                   "No audit file specified. Trying default: " + auditFileNames
-           );
-       }
-       else
-       {
-          System.out.println(
-             "Reading spec assertions from audit file/s: " + auditFileNames);
-       }
+        if (auditFileNames == null || auditFileNames.length() == 0) {
+            auditFileNames = getCurrentWorkingDirectory() + DEFAULT_AUDIT_FILE_NAME;
+            System.out.println(
+                    "No audit file specified. Trying default: " + auditFileNames
+            );
+        } else {
+            System.out.println(
+                    "Reading spec assertions from audit file/s: " + auditFileNames);
+        }
 
-       String[] parts = auditFileNames.split(",");
+        String[] parts = auditFileNames.split(",");
 
-       File[] files = new File[parts.length];
+        File[] files = new File[parts.length];
 
-       for (int i = 0; i < parts.length; i++)
-       {
-          files[i] = new File(parts[i]);
-       }
+        for (int i = 0; i < parts.length; i++) {
+            files[i] = new File(parts[i]);
+        }
 
-       return files;
+        return files;
     }
 
     private File getImagesDir() {
-       return new File(getAuditFiles()[0].getParentFile(), "/images");
+        return new File(getAuditFiles()[0].getParentFile(), "/images");
     }
 
     private void createOutputDirs() {
@@ -144,15 +136,13 @@ public class CoverageProcessor extends AbstractProcessor {
         // I would like to get the baseDir as property, but it seems that the maven compiler plugin still has issues - http://jira.codehaus.org/browse/MCOMPILER-75
         if (baseDirName == null) {
             baseDirName = getCurrentWorkingDirectory() + "target";
-           System.out.println(
+            System.out.println(
                     "No output directory specified, using " + baseDirName + " instead."
             );
-        }
-        else
-        {
-           System.out.println(
-                 "Outputting to " + baseDirName
-         );
+        } else {
+            System.out.println(
+                    "Outputting to " + baseDirName
+            );
         }
 
         baseDir = new File(baseDirName);
@@ -166,7 +156,7 @@ public class CoverageProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnvironment) {
 
-        if (auditParsers.isEmpty()) {
+       if (auditParsers.isEmpty()) {
             return false;
         }
 
@@ -174,16 +164,16 @@ public class CoverageProcessor extends AbstractProcessor {
             processAnnotatedMethods(roundEnvironment, type);
         }
 
-		if (roundEnvironment.processingOver()) {
-			for (AuditParser auditParser : auditParsers.values()) {
-				try {
-					new CoverageReport(references.get(auditParser.getSpecId()),
-							auditParser, getImagesDir(), properties)
-							.generateToOutputDir(baseDir);
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-			}
+        if (roundEnvironment.processingOver()) {
+            for (AuditParser auditParser : auditParsers.values()) {
+                try {
+                    new CoverageReport(references.get(auditParser.getSpecId()),
+                            auditParser, properties)
+                            .generateToOutputDir(baseDir);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
         return false;
     }
@@ -214,7 +204,7 @@ public class CoverageProcessor extends AbstractProcessor {
     }
 
     private void createSpecReference(ExecutableElement methodElement,
-          Map<? extends ExecutableElement, ? extends AnnotationValue> annotationParameters) {
+            Map<? extends ExecutableElement, ? extends AnnotationValue> annotationParameters) {
 
         SpecReference ref = new SpecReference();
 
@@ -223,10 +213,9 @@ public class CoverageProcessor extends AbstractProcessor {
         ref.setClassName(methodElement.getEnclosingElement().getSimpleName().toString());
         ref.setMethodName(methodElement.getSimpleName().toString());
 
-        if (methodElement.getEnclosingElement().getAnnotation(SpecVersion.class) != null)
-        {
-           ref.setSpecId(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).spec());
-           ref.setSpecVersion(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).version());
+        if (methodElement.getEnclosingElement().getAnnotation(SpecVersion.class) != null) {
+            ref.setSpecId(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).spec());
+            ref.setSpecVersion(methodElement.getEnclosingElement().getAnnotation(SpecVersion.class).version());
         }
 
         for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : annotationParameters.entrySet()) {
@@ -238,44 +227,40 @@ public class CoverageProcessor extends AbstractProcessor {
                 ref.setAssertion((String) entry.getValue().getValue());
             }
         }
-        for (AnnotationMirror annotationMirror : processingEnv.getElementUtils().getAllAnnotationMirrors(methodElement))
-        {
-           if (annotationMirror.getAnnotationType().toString().equals("org.testng.annotations.Test"))
-           {
-              Map<? extends ExecutableElement, ? extends AnnotationValue> testAnnotationParameters =
-                 processingEnv.getElementUtils().getElementValuesWithDefaults(annotationMirror);
-              for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : testAnnotationParameters.entrySet()) {
-                 final String elementKey = entry.getKey().toString();
+        for (AnnotationMirror annotationMirror : processingEnv.getElementUtils().getAllAnnotationMirrors(methodElement)) {
+            if (annotationMirror.getAnnotationType().toString().equals("org.testng.annotations.Test")) {
+                Map<? extends ExecutableElement, ? extends AnnotationValue> testAnnotationParameters =
+                        processingEnv.getElementUtils().getElementValuesWithDefaults(annotationMirror);
+                for (Map.Entry<? extends ExecutableElement, ? extends AnnotationValue> entry : testAnnotationParameters.entrySet()) {
+                    final String elementKey = entry.getKey().toString();
 
-                 if (elementKey.equals("groups()")) {
-                     for (AnnotationValue annotationValue : (List<? extends AnnotationValue>) entry.getValue().getValue())
-                     {
-                        ref.getGroups().add((String) annotationValue.getValue());
-                     }
-                 }
-             }
-           }
+                    if (elementKey.equals("groups()")) {
+                        for (AnnotationValue annotationValue : (List<? extends AnnotationValue>) entry.getValue().getValue()) {
+                            ref.getGroups().add((String) annotationValue.getValue());
+                        }
+                    }
+                }
+            }
         }
 
         List<SpecReference> refs = references.get(ref.getSpecId());
-        if (refs == null)
-        {
-           refs = new ArrayList<SpecReference>();
-           references.put(ref.getSpecId(), refs);
+        if (refs == null) {
+            refs = new ArrayList<SpecReference>();
+            references.put(ref.getSpecId(), refs);
         }
 
         refs.add(ref);
     }
 
     private PackageElement getEnclosingPackageElement(ExecutableElement methodElement) {
-       Element classElement = methodElement.getEnclosingElement();
+        Element classElement = methodElement.getEnclosingElement();
 
-       Element enclosingElement = classElement.getEnclosingElement();
+        Element enclosingElement = classElement.getEnclosingElement();
 
-       while (!(enclosingElement instanceof PackageElement) && enclosingElement != null) {
-          enclosingElement = enclosingElement.getEnclosingElement();
-       }
+        while (!(enclosingElement instanceof PackageElement) && enclosingElement != null) {
+            enclosingElement = enclosingElement.getEnclosingElement();
+        }
 
-       return (PackageElement) enclosingElement;
+        return (PackageElement) enclosingElement;
     }
 }
