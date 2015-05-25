@@ -31,7 +31,7 @@ public class CoverageReportTest {
 		RuntimeProperties properties = new RuntimeProperties();
 		CoverageReport report = new CoverageReport(null, new AuditParser(this
 				.getClass().getResourceAsStream("/tck-audit-coverage-report.xml"),
-				properties).parse(), null, properties);
+				properties).parse(), properties);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		report.generate(out);
@@ -50,7 +50,7 @@ public class CoverageReportTest {
 		RuntimeProperties properties = new RuntimeProperties();
 		CoverageReport report = new CoverageReport(null, new AuditParser(this
 				.getClass().getResourceAsStream("/tck-audit-coverage-report-old.xml"),
-				properties).parse(), null, properties);
+				properties).parse(), properties);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		report.generate(out);
@@ -58,9 +58,9 @@ public class CoverageReportTest {
 		//System.out.print(html);
 
 		assertTrue(html
-				.contains("<h4 class=\"sectionHeader\" id=\"2\">Section 2 - Concepts</h4>"));
+				.contains("<h4 class=\"sectionHeader\" id=\"2\">Section 2 - Concepts"));
 		assertTrue(html
-				.contains("<h4 class=\"sectionHeader\" id=\"2.2\">Section 2.2 - Bean types</h4>"));
+				.contains("<h4 class=\"sectionHeader\" id=\"2.2\">Section 2.2 - Bean types"));
 	}
 
 }

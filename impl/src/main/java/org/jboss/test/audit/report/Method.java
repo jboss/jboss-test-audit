@@ -21,83 +21,69 @@ import java.util.List;
 
 /**
  * @author pmuir
- *
  */
-public class Method
-{
-   
-   private static class MethodComparator implements Comparator<Method>
-   {
+public class Method {
 
-      @Override
-      public int compare(Method arg0, Method arg1)
-      { 
-         return arg0.getFqn().compareToIgnoreCase(arg1.getFqn());
-      }
+    private static class MethodComparator implements Comparator<Method> {
 
-   }
-   
-   public static final Comparator<Method> COMPARATOR = new MethodComparator();
-   
-   private final String packageName;
-   private final String className;
-   private final String methodName;
-   private final List<String> groups;
-   
-   public Method(String packageName, String className, String methodName, List<String> groups)
-   {
-      this.packageName = packageName;
-      this.className = className;
-      this.methodName = methodName;
-      this.groups = groups;
-   }
+        @Override
+        public int compare(Method arg0, Method arg1) {
+            return arg0.getFqn().compareToIgnoreCase(arg1.getFqn());
+        }
 
-   public String getPackageName()
-   {
-      return packageName;
-   }
+    }
 
-   public String getClassName()
-   {
-      return className;
-   }
+    public static final Comparator<Method> COMPARATOR = new MethodComparator();
 
-   public String getMethodName()
-   {
-      return methodName;
-   }
+    private final String packageName;
+    private final String className;
+    private final String methodName;
+    private final List<String> groups;
 
-   public List<String> getGroups()
-   {
-      return groups;
-   }
-   
-   @Override
-   public boolean equals(Object obj)
-   {
-      if (obj instanceof Method)
-      {
-         Method that = (Method) obj;
-         return this.getPackageName().equals(that.getPackageName()) && this.getClassName().equals(that.getClassName()) && this.getMethodName().equals(that.getMethodName());
-      }
-      else
-      {
-         return false;
-      }
-   }
-   
-   /* (non-Javadoc)
-    * @see java.lang.Object#hashCode()
-    */
-   @Override
-   public int hashCode()
-   {
-      return getPackageName().hashCode() + getClassName().hashCode() + getMethodName().hashCode();
-   }
-   
-   public String getFqn()
-   {
-      return packageName + "." + className + "." + methodName;
-   }
-   
+    public Method(String packageName, String className, String methodName, List<String> groups) {
+        this.packageName = packageName;
+        this.className = className;
+        this.methodName = methodName;
+        this.groups = groups;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public List<String> getGroups() {
+        return groups;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Method) {
+            Method that = (Method) obj;
+            return this.getPackageName().equals(that.getPackageName()) && this.getClassName().equals(that.getClassName()) && this.getMethodName()
+                    .equals(that.getMethodName());
+        } else {
+            return false;
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        return getPackageName().hashCode() + getClassName().hashCode() + getMethodName().hashCode();
+    }
+
+    public String getFqn() {
+        return packageName + "." + className + "." + methodName;
+    }
+
 }
