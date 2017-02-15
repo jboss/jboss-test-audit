@@ -19,10 +19,12 @@ package org.jboss.test.audit.annotations;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Documented
+@Repeatable(SpecAssertions.class)
 public @interface SpecAssertion {
 
 	public String section();
@@ -32,4 +34,3 @@ public @interface SpecAssertion {
 	public String note() default "";
 
 }
-
