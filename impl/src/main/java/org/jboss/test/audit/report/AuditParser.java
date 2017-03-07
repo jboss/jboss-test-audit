@@ -80,8 +80,8 @@ public class AuditParser
 
    /**
     *
-    * @param sectionId
-    * @return
+    * @param sectionId - id of related section
+    * @return list of AuditAssertions
     */
    public List<AuditAssertion> getAssertionsForSection(String sectionId)
    {
@@ -108,8 +108,8 @@ public class AuditParser
    /**
     * Returns a list of items for the specified section ID
     *
-    * @param sectionId
-    * @return
+    * @param sectionId - id of related section
+    * @return list of Section items
     */
    public List<SectionItem> getItemsForSection(String sectionId)
    {
@@ -119,9 +119,9 @@ public class AuditParser
 
    /**
     *
-    * @param sectionId
-    * @param assertionId
-    * @return
+    * @param sectionId - id of related section
+    * @param assertionId - assertion id
+    * @return true if it has assertion
     */
    public boolean hasAssertion(String sectionId, String assertionId)
    {
@@ -155,6 +155,7 @@ public class AuditParser
 
    /**
     * Load the spec assertions defined in tck-audit.xml
+    * @return AuditParse
     */
    public AuditParser parse() throws Exception
    {

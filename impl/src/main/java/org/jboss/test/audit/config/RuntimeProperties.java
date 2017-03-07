@@ -26,8 +26,7 @@ public class RuntimeProperties
 
    /**
     * Constructor
-    * 
-    * @param classLoader The classloader to work on
+    *
     */
    public RuntimeProperties()
    {
@@ -123,9 +122,8 @@ public class RuntimeProperties
     * Gets the possible implementation class for a given property for which the
     * values are classanames
     * 
-    * @param deploymentProperties The deployment properties object to use
-    * @param resourceLoader The resource laoder to use to attempt
     * @param propertyName The name of the property to load
+    * @param expectedType expected type
     * @return A set of classes specified
     */
    @SuppressWarnings("unchecked")

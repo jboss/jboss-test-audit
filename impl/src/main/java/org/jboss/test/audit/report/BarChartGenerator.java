@@ -21,7 +21,6 @@ public class BarChartGenerator
     * 
     * @param fromColour
     * @param toColour
-    * @param series A list of label:value values
     */
    public BarChartGenerator(String fromColour, String toColour, List<SeriesGenerator.SeriesElement> values)
    {

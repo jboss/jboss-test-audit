@@ -180,7 +180,6 @@ public class SectionsClassGenerator {
 	 *
 	 * @param auditFile
 	 * @param packageBase
-	 * @param specId
 	 * @throws URISyntaxException
 	 * @throws SAXException
 	 * @throws IOException
