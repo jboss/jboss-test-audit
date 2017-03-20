@@ -39,9 +39,9 @@ public class CoverageReportTest {
 		//System.out.print(html);
 
 		assertTrue(html
-				.contains("<h4 class=\"sectionHeader\" id=\"2\">Section 2 - Concepts <sup>[concepts]</sup></h4>"));
+				.contains("<h4 class=\"sectionHeader\" id=\"2\">Section 2 - Concepts <sup>[<a href=\"https://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#concepts\">concepts</a>]</sup></h4>"));
 		assertTrue(html
-				.contains("<h4 class=\"sectionHeader\" id=\"2.2\">Section 2.2 - Bean types <sup>[bean_types]</sup></h4>"));
+				.contains("<h4 class=\"sectionHeader\" id=\"2.2\">Section 2.2 - Bean types <sup>[<a href=\"https://docs.jboss.org/cdi/spec/1.2/cdi-spec.html#bean_types\">bean_types</a>]</sup></h4>"));
 	}
 
 	@Test

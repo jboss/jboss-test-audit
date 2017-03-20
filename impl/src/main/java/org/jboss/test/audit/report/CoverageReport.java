@@ -64,6 +64,7 @@ public class CoverageReport
 
    private RuntimeProperties properties;
 
+   private String specificationBaseUrl = null;
    private String fisheyeBaseUrl = null;
    private String svnBaseUrl = null;
    private String githubBaseUrl = null;
@@ -111,7 +112,10 @@ public class CoverageReport
 
       try
       {
-    	 // FishEye
+         // Specification
+         specificationBaseUrl = this.properties.getStringValue(
+               PropertyKeys.SPECIFICATION_BASE_URL_PROPERTY, null, false);
+         // FishEye
          fisheyeBaseUrl = this.properties.getStringValue(
                PropertyKeys.FISHEYE_BASE_URL_PROPERTY, null, false);
          if (fisheyeBaseUrl != null && !fisheyeBaseUrl.endsWith("/"))
@@ -821,14 +825,29 @@ public class CoverageReport
          {
             StringBuilder sb = new StringBuilder();
 
-            String originalSectionIdInfo = auditParser.hasSectionIdsGenerated() ? " <sup>["+auditParser.getSectionOriginalId(sectionId)+"]</sup>" : "";
+            StringBuilder originalSectionIdInfo = new StringBuilder();
+            if (auditParser.hasSectionIdsGenerated())
+            {
+               String originalSectionId = auditParser.getSectionOriginalId(sectionId);
+               originalSectionIdInfo.append(" <sup>[");
+               if (specificationBaseUrl != null)
+               {
+                  originalSectionIdInfo.append("<a href=\"").append(specificationBaseUrl).append("#").append(originalSectionId).append("\">");
+               }
+               originalSectionIdInfo.append(originalSectionId);
+               if (specificationBaseUrl != null)
+               {
+                  originalSectionIdInfo.append("</a>");
+               }
+               originalSectionIdInfo.append("]</sup>");
+            }
 
             // wrap each section to div element to create some "relation" between assertions and given section.
             out.write(("<div id = \"" + auditParser.getSectionTitle(sectionId) + "\">").getBytes());
 
             out.write(("<h4 class=\"sectionHeader\" id=\"" + sectionId
                   + "\">Section " + sectionId + " - "
-                  + escape(auditParser.getSectionTitle(sectionId)) + originalSectionIdInfo+ "</h4>\n")
+                  + escape(auditParser.getSectionTitle(sectionId)) + originalSectionIdInfo + "</h4>\n")
                   .getBytes());
 
             for (SectionItem item : items)
