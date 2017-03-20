@@ -218,6 +218,9 @@ public class SectionsClassGenerator {
 			if (Character.isLetterOrDigit(tmpChar) || tmpChar == '_') {
 				result.append(tmpChar);
 			}
+			else if (tmpChar == '-') {
+				result.append('_');
+			}
 		}
 		return result.toString().toUpperCase();
 	}
