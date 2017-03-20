@@ -19,6 +19,10 @@ package org.jboss.test.audit.config;
 public final class PropertyKeys {
 
 	/**
+	 * If specified, links to the specification will be generated
+	 */
+	public static final String SPECIFICATION_BASE_URL_PROPERTY = "specification_base_url";
+	/**
 	 * If specified, links to the test class in GitHub will be generated
 	 */
 	public static final String GITHUB_BASE_URL_PROPERTY = "github_base_url";
