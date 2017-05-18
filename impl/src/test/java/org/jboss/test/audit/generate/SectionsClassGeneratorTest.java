@@ -80,7 +80,7 @@ public class SectionsClassGeneratorTest {
 		File sourceFile = new File(outDir,
 				generator.packageNameToPath(packageBase + "." + specId)
 						+ FILE_SEPARATOR
-						+ SectionsClassGenerator.SOURCE_CLASS_NAME + ".java");
+						+ SectionsClassGenerator.sourceClassName + ".java");
 		assertTrue(sourceFile.exists());
 		assertTrue(sourceFile.isFile());
 	}
