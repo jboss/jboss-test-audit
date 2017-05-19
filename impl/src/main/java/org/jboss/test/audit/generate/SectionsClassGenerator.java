@@ -47,7 +47,7 @@ import org.xml.sax.SAXException;
  */
 public class SectionsClassGenerator {
 
-	protected static final String SOURCE_CLASS_NAME = "Sections";
+	protected static String sourceClassName = "Sections";
 
 	private static final String NEW_LINE = "\n";
 
@@ -65,13 +65,17 @@ public class SectionsClassGenerator {
 	 */
 	public static void main(String[] args) {
 
-		if (args.length != 3) {
+		if (args.length < 3) {
 			throw new IllegalArgumentException();
 		}
 
 		String auditFilePath = args[0];
 		String packageBase = args[1];
 		String outputDirPath = args[2];
+
+		if (args.length > 3) {
+			sourceClassName = args[3];
+		}
 
 		SectionsClassGenerator generator = new SectionsClassGenerator();
 
@@ -124,10 +128,10 @@ public class SectionsClassGenerator {
 		source.append(NEW_LINE);
 
 		source.append("public final class ");
-		source.append(SOURCE_CLASS_NAME);
+		source.append(sourceClassName);
 		source.append(" {");
 		source.append(NEW_LINE);
-		source.append("private Sections() {}");
+		source.append("private " + sourceClassName+ "() {}");
 		source.append(NEW_LINE);
 
 		NodeList sectionNodes = doc.getDocumentElement().getChildNodes();
@@ -170,7 +174,7 @@ public class SectionsClassGenerator {
 
 		GeneratedSource generatedSource = new GeneratedSource(
 				source.toString(), packageBase + PACKAGE_SEPARATOR + specId,
-				SOURCE_CLASS_NAME);
+				sourceClassName);
 		System.out.println("Section class source generated: "
 				+ generatedSource.getName());
 		return generatedSource;
